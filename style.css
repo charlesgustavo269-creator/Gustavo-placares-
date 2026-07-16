@@ -1,0 +1,147 @@
+/* Estilos para a tela de jogo focado */
+.tela-detalhes {
+    width: 100%;
+    max-width: 450px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-top: 10px;
+}
+
+.btn-voltar {
+    background-color: #333;
+    color: #fff;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 8px;
+    font-weight: bold;
+    cursor: pointer;
+    align-self: flex-start;
+    font-size: 14px;
+    transition: 0.2s;
+}
+
+.btn-voltar:active {
+    background-color: #444;
+}
+
+.card-foco {
+    padding: 30px 20px !important;
+    border: 2px solid #2ecc71; /* Destaca o card aberto com uma borda verde */
+}
+
+/* Deixa o card comum com efeito de clique */
+.card {
+    cursor: pointer;
+    transition: transform 0.1s;
+}
+.card:active {
+    transform: scale(0.98); /* Dá um efeito de afundar de leve ao clicar */
+}
+s: 8px;
+    font-size: 16px;
+    outline: none;
+}
+
+/* Filtros (Botões) */
+.filtros {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin: 20px 0;
+    padding: 0 10px;
+    overflow-x: auto;
+}
+
+.btn-filtro {
+    background-color: #1e1e1e;
+    color: #b0b0b0;
+    border: 1px solid #333;
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-size: 14px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: 0.3s;
+    white-space: nowrap;
+}
+
+.btn-filtro.active {
+    background-color: #2e7d32;
+    color: #fff;
+    border-color: #2e7d32;
+}
+
+/* Container dos Jogos */
+main {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+    padding: 0 15px;
+}
+
+/* Cards dos Jogos */
+.card {
+    background-color: #1e1e1e;
+    width: 100%;
+    max-width: 450px;
+    border-radius: 15px;
+    padding: 15px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+}
+
+.liga {
+    font-size: 12px;
+    color: #2ecc71; /* Verde das ligas */
+    font-weight: bold;
+    margin-bottom: 15px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.times {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.time {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 35%;
+    text-align: center;
+}
+
+.time img {
+    width: 45px;
+    height: 45px;
+    object-fit: contain;
+    margin-bottom: 8px;
+}
+
+.nome {
+    font-size: 14px;
+    font-weight: bold;
+    color: #ffffff;
+}
+
+/* PLACAR - CORRIGIDO CONTRA QUEBRA DE LINHA! */
+.placar {
+    font-size: 28px;
+    font-weight: bold;
+    color: #2ecc71; /* Verde brilhante */
+    text-align: center;
+    white-space: nowrap; /* IMPEDE O PLACAR DE QUEBRAR EM VÁRIAS LINHAS */
+    letter-spacing: 2px;
+}
+
+.status {
+    font-size: 12px;
+    color: #b0b0b0;
+    text-align: center;
+    margin-top: 5px;
+    font-weight: bold;
+}
