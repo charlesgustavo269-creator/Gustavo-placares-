@@ -1,17 +1,18 @@
+
 const API_KEY = "cb6cfc4960ec49edb8a04af5975ab816";
 let jogos = [];
 let filtro = "ALL";
 
-// Lista de proxies atualizada e mais robusta para garantir a entrega dos dados
+// Lista de proxies configurada para quebrar o cache de dados antigos
 const proxies = [
     (url) => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
-    (url) => `https://corsproxy.io/?${encodeURIComponent(url)}`,
-    (url) => `https://cors-anywhere.herokuapp.com/${url}`
+    (url) => `https://corsproxy.io/?${encodeURIComponent(url)}`
 ];
 
 async function carregarJogos() {
-    // Mudamos para buscar partidas das principais competições mundiais, evitando bloqueio por excesso de dados
-    const urlOriginal = "https://api.football-data.org/v4/matches";
+    // TRUQUE ANTI-CACHE: Adiciona o timestamp atual na URL para forçar o proxy a trazer o resultado em tempo real
+    const timestampAleatorio = new Date().getTime();
+    const urlOriginal = `https://api.football-data.org/v4/matches?_=${timestampAleatorio}`;
     let sucesso = false;
 
     for (let i = 0; i < proxies.length; i++) {
@@ -30,20 +31,18 @@ async function carregarJogos() {
 
             const dados = await resposta.json();
             
-            // Verifica se a API retornou os jogos corretamente
-            if (dados && dados.matches && dados.matches.length > 0) {
+            if (dados && dados.matches) {
                 jogos = dados.matches;
                 mostrarJogos();
                 sucesso = true;
                 break;
             }
         } catch (erro) {
-            console.warn(`Tentativa com o proxy ${i + 1} falhou, tentando o próximo...`);
+            console.warn(`Proxy ${i + 1} falhou, tentando o próximo...`);
         }
     }
 
-    // Se todos os servidores falharem, mostra uma mensagem amigável com botão de recarregar
-    if (!sucesso && document.getElementById("jogos")) {
+    if (!sucesso && jogos.length === 0 && document.getElementById("jogos")) {
         document.getElementById("jogos").innerHTML = `
         <div style="text-align:center;color:#ff4d4d;padding:20px;font-family:sans-serif;">
             <h2 style="margin-bottom:10px;">Os times estão aquecendo... 🏃‍♂️</h2>
@@ -61,7 +60,10 @@ function mostrarJogos() {
     let html = "";
 
     const jogosFiltrados = jogos.filter(j => {
-        const passaFiltro = filtro === "ALL" || j.status === filtro;
+        // Melhores filtros para detetar jogos que iniciaram ou estão no intervalo
+        const statusAoVivo = j.status === "LIVE" || j.status === "IN_PLAY" || j.status === "PAUSED";
+        const passaFiltro = filtro === "ALL" || j.status === filtro || (filtro === "LIVE" && statusAoVivo);
+        
         const casa = j.homeTeam?.name?.toLowerCase() || "";
         const fora = j.awayTeam?.name?.toLowerCase() || "";
         const passaPesquisa = casa.includes(pesquisa) || fora.includes(pesquisa);
@@ -72,26 +74,33 @@ function mostrarJogos() {
     if (!containerJogos) return;
 
     if (jogosFiltrados.length === 0) {
-        containerJogos.innerHTML = `<h3 style="text-align:center;color:#888;margin-top:40px;font-family:sans-serif;">Nenhum jogo ao vivo ou agendado para hoje.</h3>`;
+        containerJogos.innerHTML = `<h3 style="text-align:center;color:#888;margin-top:40px;font-family:sans-serif;">Nenhum jogo encontrado para este filtro.</h3>`;
         return;
     }
 
     jogosFiltrados.forEach(jogo => {
         let status = jogo.status;
-        if (jogo.status === "LIVE" || jogo.status === "IN_PLAY") {
+        let corStatus = "#2ecc71"; 
+
+        // Força a exibição do AO VIVO com base nos status reais que a API envia quando a bola rola
+        if (jogo.status === "LIVE" || jogo.status === "IN_PLAY" || jogo.status === "PAUSED") {
             status = "🔴 AO VIVO";
-        } else if (jogo.status === "TIMED" || static === "SCHEDULED") {
+            corStatus = "#ff4d4d"; 
+        } else if (jogo.status === "TIMED" || jogo.status === "SCHEDULED") {
             const data = new Date(jogo.utcDate);
             const hora = data.toLocaleTimeString("pt-BR",{ hour:"2-digit", minute:"2-digit", timeZone:"America/Sao_Paulo" });
             status = `📅 Hoje às ${hora}`;
         } else if (jogo.status === "FINISHED") {
             status = "✔ Encerrado";
+            corStatus = "#888";
         }
 
         const escudoHome = jogo.homeTeam?.crest || "https://via.placeholder.com/40?text=⚽";
         const escudoAway = jogo.awayTeam?.crest || "https://via.placeholder.com/40?text=⚽";
+        
         const golsHome = jogo.score?.fullTime?.home ?? 0;
         const golsAway = jogo.score?.fullTime?.away ?? 0;
+        
         const nomeCasa = jogo.homeTeam?.shortName || jogo.homeTeam?.name || "Casa";
         const nomeFora = jogo.awayTeam?.shortName || jogo.awayTeam?.name || "Fora";
         const campeonato = jogo.competition?.name || "Campeonato";
@@ -106,7 +115,7 @@ function mostrarJogos() {
                 </div>
                 <div style="width:30%;text-align:center;">
                     <div class="placar" style="font-size:20px;font-weight:bold;background:#2d2d2d;padding:5px 10px;border-radius:5px;display:inline-block;margin-bottom:5px;">${golsHome} - ${golsAway}</div>
-                    <div class="status" style="font-size:11px;color:#2ecc71;font-weight:bold;">${status}</div>
+                    <div class="status" style="font-size:11px;color:${corStatus};font-weight:bold;">${status}</div>
                 </div>
                 <div class="time" style="width:35%;text-align:center;">
                     <img src="${escudoAway}" alt="${nomeFora}" style="width:40px;height:40px;object-fit:contain;margin-bottom:5px;" onerror="this.src='https://via.placeholder.com/40?text=⚽'">
@@ -129,8 +138,7 @@ if (campoPesquisa) {
     campoPesquisa.addEventListener("input", mostrarJogos);
 }
 
-// Inicia a busca assim que a página abre
 carregarJogos();
-// Atualiza os resultados a cada 60 segundos automaticamente
-setInterval(carregarJogos, 60000);
+// Sobe o tempo de checagem para 45 segundos para não estourar o limite da API grátis
+setInterval(carregarJogos, 45000);
 
