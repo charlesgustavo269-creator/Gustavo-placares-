@@ -1,18 +1,17 @@
-
 const API_KEY = "cb6cfc4960ec49edb8a04af5975ab816";
 let jogos = [];
 let filtro = "ALL";
 
-// Lista de proxies configurada para quebrar o cache de dados antigos
+// Lista de proxies para evitar bloqueios de CORS
 const proxies = [
     (url) => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
     (url) => `https://corsproxy.io/?${encodeURIComponent(url)}`
 ];
 
 async function carregarJogos() {
-    // TRUQUE ANTI-CACHE: Adiciona o timestamp atual na URL para forçar o proxy a trazer o resultado em tempo real
-    const timestampAleatorio = new Date().getTime();
-    const urlOriginal = `https://api.football-data.org/v4/matches?_=${timestampAleatorio}`;
+    // Truque para quebrar o cache e trazer dados novos
+    const quebraCache = Math.random().toString(36).substring(7);
+    const urlOriginal = `https://api.football-data.org/v4/matches?nocache=${quebraCache}`;
     let sucesso = false;
 
     for (let i = 0; i < proxies.length; i++) {
@@ -23,7 +22,10 @@ async function carregarJogos() {
                 method: "GET",
                 headers: { 
                     "X-Auth-Token": API_KEY,
-                    "Accept": "application/json"
+                    "Accept": "application/json",
+                    "Cache-Control": "no-cache, no-store, must-revalidate",
+                    "Pragma": "no-cache",
+                    "Expires": "0"
                 }
             });
 
@@ -42,12 +44,12 @@ async function carregarJogos() {
         }
     }
 
+    // Se falhar tudo, mostra mensagem de erro
     if (!sucesso && jogos.length === 0 && document.getElementById("jogos")) {
         document.getElementById("jogos").innerHTML = `
         <div style="text-align:center;color:#ff4d4d;padding:20px;font-family:sans-serif;">
             <h2 style="margin-bottom:10px;">Os times estão aquecendo... 🏃‍♂️</h2>
-            <p style="color:#aaa;margin-bottom:20px;">O servidor de dados está um pouco instável no momento.</p>
-            <button onclick="carregarJogos()" style="background:#2ecc71;color:white;border:none;padding:10px 20px;border-radius:5px;font-weight:bold;cursor:pointer;">Tentar Novamente</button>
+            <p style="color:#aaa;margin-bottom:20px;">O servidor de dados está um pouco instável.</p>
         </div>`;
     }
 }
@@ -60,7 +62,6 @@ function mostrarJogos() {
     let html = "";
 
     const jogosFiltrados = jogos.filter(j => {
-        // Melhores filtros para detetar jogos que iniciaram ou estão no intervalo
         const statusAoVivo = j.status === "LIVE" || j.status === "IN_PLAY" || j.status === "PAUSED";
         const passaFiltro = filtro === "ALL" || j.status === filtro || (filtro === "LIVE" && statusAoVivo);
         
@@ -74,7 +75,7 @@ function mostrarJogos() {
     if (!containerJogos) return;
 
     if (jogosFiltrados.length === 0) {
-        containerJogos.innerHTML = `<h3 style="text-align:center;color:#888;margin-top:40px;font-family:sans-serif;">Nenhum jogo encontrado para este filtro.</h3>`;
+        containerJogos.innerHTML = `<h3 style="text-align:center;color:#888;margin-top:40px;font-family:sans-serif;">Nenhum jogo encontrado.</h3>`;
         return;
     }
 
@@ -82,7 +83,6 @@ function mostrarJogos() {
         let status = jogo.status;
         let corStatus = "#2ecc71"; 
 
-        // Força a exibição do AO VIVO com base nos status reais que a API envia quando a bola rola
         if (jogo.status === "LIVE" || jogo.status === "IN_PLAY" || jogo.status === "PAUSED") {
             status = "🔴 AO VIVO";
             corStatus = "#ff4d4d"; 
@@ -138,7 +138,13 @@ if (campoPesquisa) {
     campoPesquisa.addEventListener("input", mostrarJogos);
 }
 
+// Inicia o carregamento
 carregarJogos();
-// Sobe o tempo de checagem para 45 segundos para não estourar o limite da API grátis
-setInterval(carregarJogos, 45000);
+
+// Recarrega a página inteira automaticamente a cada 40 segundos
+setTimeout(() => {
+    window.location.reload();
+}, 40000);
+
+            
 
