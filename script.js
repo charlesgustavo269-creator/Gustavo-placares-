@@ -1,9 +1,11 @@
-// Substitua "seu-projeto" pelo nome que está no seu link da Vercel
-const API_URL = "https://seu-projeto.vercel.app/api/jogos";
+const API_URL = "https://api.football-data.org/v4/matches";
+const API_KEY = "cb6cfc4960ec49edb8a04af5975ab816"; // Sua chave aqui
 
 async function carregarJogos() {
     try {
-        const res = await fetch(`${API_URL}?t=${new Date().getTime()}`);
+        const res = await fetch(API_URL, {
+            headers: { "X-Auth-Token": API_KEY }
+        });
         const data = await res.json();
         
         if (data.matches) {
