@@ -1,17 +1,22 @@
-const API_KEY = "cb6cfc4960ec49edb8a04af5975ab816";
+const API_ENDPOINT = "https://SEU-PROJETO.vercel.app/api/jogos"; // Substitua pela sua URL da Vercel
 
 async function carregarJogos() {
-    const url = `https://api.allorigins.win/get?url=${encodeURIComponent('https://api.football-data.org/v4/matches')}`;
+    const container = document.getElementById("jogos");
+    
     try {
-        const res = await fetch(url, { headers: { "X-Auth-Token": API_KEY } });
+        const res = await fetch(API_ENDPOINT);
         const data = await res.json();
-        const conteudo = JSON.parse(data.contents);
         
-        if (conteudo.matches) {
-            exibirJogos(conteudo.matches);
+        if (!res.ok) throw new Error(data.error || "Erro ao buscar jogos");
+        
+        if (data.matches && data.matches.length > 0) {
+            exibirJogos(data.matches);
+        } else {
+            container.innerHTML = `<div style="text-align:center; color:#aaa;">Nenhum jogo disponível.</div>`;
         }
-    } catch (e) { 
-        console.error("Erro na API:", e);
+    } catch (e) {
+        console.error(e);
+        container.innerHTML = `<div style="text-align:center; color:#e74c3c;">${e.message}</div>`;
     }
 }
 
@@ -20,12 +25,10 @@ function exibirJogos(listaJogos) {
     let html = "";
 
     listaJogos.forEach(jogo => {
-        // Formata data e hora
         const dataJogo = new Date(jogo.utcDate);
         const dataFormatada = dataJogo.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
         const horaFormatada = dataJogo.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
 
-        // Define o status simples
         let statusTexto = `${dataFormatada} às ${horaFormatada}`;
         let corStatus = "#aaa";
 
@@ -63,4 +66,6 @@ function exibirJogos(listaJogos) {
     container.innerHTML = html;
 }
 
+// Inicia a execução
 carregarJogos();
+setInterval(carregarJogos, 60000);
