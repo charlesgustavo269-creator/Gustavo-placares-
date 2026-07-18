@@ -1,3 +1,12 @@
+// FUNÇÃO ADICIONADA
+function iniciarSite() {
+    const audio = document.getElementById("audio-apresentacao");
+    if(audio) audio.play();
+    document.getElementById("tela-inicial").style.display = "none";
+    document.getElementById("container-conteudo").style.display = "block";
+    carregarJogos();
+}
+
 const API_KEY = "cb6cfc4960ec49edb8a04af5975ab816";
 let jogos = [];
 let filtro = "ALL";
@@ -111,5 +120,6 @@ function filtrar(tipo){
     mostrarJogos();
 }
 
-carregarJogos();
+// Removi o carregarJogos() que rodava automático no início.
+// Agora ele só roda dentro da função iniciarSite()
 setInterval(carregarJogos, 30000);
