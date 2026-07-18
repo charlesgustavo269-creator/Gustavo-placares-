@@ -8,6 +8,9 @@ const proxies = [
 ];
 
 async function carregarJogos() {
+    const containerJogos = document.getElementById("jogos");
+    if(containerJogos) containerJogos.innerHTML = "Carregando placares... ⏳";
+
     const quebraCache = Math.random().toString(36).substring(7);
     const urlOriginal = `https://api.football-data.org/v4/matches?nocache=${quebraCache}`;
     let sucesso = false;
@@ -17,34 +20,37 @@ async function carregarJogos() {
             const urlProxy = proxies[i](urlOriginal);
             const resposta = await fetch(urlProxy, {
                 method: "GET",
-                headers: { 
-                    "X-Auth-Token": API_KEY,
-                    "Accept": "application/json",
-                    "Cache-Control": "no-cache, no-store, must-revalidate"
-                }
+                headers: { "X-Auth-Token": API_KEY }
             });
-            if (!resposta.ok) throw new Error(`Status: ${resposta.status}`);
-            const dados = await resposta.json();
-            if (dados && dados.matches) {
-                jogos = dados.matches;
-                mostrarJogos();
-                sucesso = true;
-                break;
+            
+            if (resposta.ok) {
+                const dados = await resposta.json();
+                if (dados && dados.matches) {
+                    jogos = dados.matches;
+                    mostrarJogos();
+                    sucesso = true;
+                    break;
+                }
             }
         } catch (erro) {
-            console.warn(`Tentativa ${i + 1} falhou...`);
+            console.warn(`Tentativa ${i + 1} falhou`);
         }
+    }
+
+    if (!sucesso && containerJogos) {
+        containerJogos.innerHTML = "API ocupada, tentando novamente... 🔄";
     }
 }
 
 function mostrarJogos() {
+    const containerJogos = document.getElementById("jogos");
+    if (!containerJogos) return;
+
     const campoPesquisa = document.getElementById("pesquisa");
     let pesquisa = campoPesquisa ? campoPesquisa.value.toLowerCase() : "";
     let html = "";
     
-    // A CHAVE ESTAVA AQUI: Definindo a data de hoje para comparação
-    const dataAtual = new Date();
-    const hoje = dataAtual.toLocaleDateString("pt-BR");
+    const hoje = new Date().toLocaleDateString("pt-BR");
 
     const jogosFiltrados = jogos.filter(j => {
         const statusAoVivo = j.status === "LIVE" || j.status === "IN_PLAY" || j.status === "PAUSED";
@@ -55,11 +61,8 @@ function mostrarJogos() {
         return passaFiltro && passaPesquisa;
     });
 
-    const containerJogos = document.getElementById("jogos");
-    if (!containerJogos) return;
-
     if (jogosFiltrados.length === 0) {
-        containerJogos.innerHTML = `<h3 style="text-align:center;color:#888;margin-top:40px;font-family:sans-serif;">Nenhum jogo encontrado.</h3>`;
+        containerJogos.innerHTML = `<h3 style="text-align:center;color:#888;">Nenhum jogo encontrado.</h3>`;
         return;
     }
 
@@ -74,44 +77,25 @@ function mostrarJogos() {
             const dataJogo = new Date(jogo.utcDate);
             const dataFormatada = dataJogo.toLocaleDateString("pt-BR");
             const hora = dataJogo.toLocaleTimeString("pt-BR",{ hour:"2-digit", minute:"2-digit", timeZone:"America/Sao_Paulo" });
-            
-            // A lógica correta comparando com a variável 'hoje' que criamos acima
-            if (dataFormatada === hoje) {
-                status = `📅 Hoje às ${hora}`;
-            } else {
-                status = `📅 ${dataFormatada} às ${hora}`;
-            }
-        } else if (jogo.status === "FINISHED") {
+            status = (dataFormatada === hoje) ? `📅 Hoje às ${hora}` : `📅 ${dataFormatada} às ${hora}`;
+        } else {
             status = "✔ Encerrado";
             corStatus = "#888";
         }
 
-        const escudoHome = jogo.homeTeam?.crest || "https://via.placeholder.com/40?text=⚽";
-        const escudoAway = jogo.awayTeam?.crest || "https://via.placeholder.com/40?text=⚽";
-        const golsHome = jogo.score?.fullTime?.home ?? 0;
-        const golsAway = jogo.score?.fullTime?.away ?? 0;
-        
-        const nomeCasa = jogo.homeTeam?.shortName || jogo.homeTeam?.name || "Casa";
-        const nomeFora = jogo.awayTeam?.shortName || jogo.awayTeam?.name || "Fora";
-        const campeonato = jogo.competition?.name || "Campeonato";
+        // Trava de segurança para placares futuros:
+        const golsHome = jogo.score?.fullTime?.home ?? "-";
+        const golsAway = jogo.score?.fullTime?.away ?? "-";
 
         html += `
-        <div class="card" style="background:#1e1e1e;padding:15px;margin:10px;border-radius:8px;font-family:sans-serif;color:white;box-shadow: 0 4px 6px rgba(0,0,0,0.3);">
-            <div class="liga" style="font-size:12px;color:#888;margin-bottom:10px;text-transform:uppercase;">🏟️ ${campeonato}</div>
-            <div class="times" style="display:flex;justify-content:space-between;align-items:center;">
-                <div class="time" style="width:35%;text-align:center;">
-                    <img src="${escudoHome}" alt="${nomeCasa}" style="width:40px;height:40px;object-fit:contain;margin-bottom:5px;" onerror="this.src='https://via.placeholder.com/40?text=⚽'">
-                    <div class="nome" style="font-size:14px;font-weight:bold;">${nomeCasa}</div>
-                </div>
-                <div style="width:30%;text-align:center;">
-                    <div class="placar" style="font-size:20px;font-weight:bold;background:#2d2d2d;padding:5px 10px;border-radius:5px;display:inline-block;margin-bottom:5px;">${golsHome} - ${golsAway}</div>
-                    <div class="status" style="font-size:11px;color:${corStatus};font-weight:bold;">${status}</div>
-                </div>
-                <div class="time" style="width:35%;text-align:center;">
-                    <img src="${escudoAway}" alt="${nomeFora}" style="width:40px;height:40px;object-fit:contain;margin-bottom:5px;" onerror="this.src='https://via.placeholder.com/40?text=⚽'">
-                    <div class="nome" style="font-size:14px;font-weight:bold;">${nomeFora}</div>
-                </div>
+        <div class="card" style="background:#1e1e1e;padding:15px;margin:10px;border-radius:8px;color:white;box-shadow: 0 4px 6px rgba(0,0,0,0.3);">
+            <div style="font-size:12px;color:#888;margin-bottom:5px;">${jogo.competition?.name || "Liga"}</div>
+            <div style="display:flex;justify-content:space-between;align-items:center;">
+                <div style="width:40%;text-align:center;">${jogo.homeTeam?.shortName || "Casa"}</div>
+                <div style="width:20%;text-align:center;font-weight:bold;">${golsHome} - ${golsAway}</div>
+                <div style="width:40%;text-align:center;">${jogo.awayTeam?.shortName || "Fora"}</div>
             </div>
+            <div style="text-align:center;font-size:11px;color:${corStatus};margin-top:8px;">${status}</div>
         </div>`;
     });
 
@@ -125,121 +109,3 @@ function filtrar(tipo){
 
 carregarJogos();
 setInterval(carregarJogos, 30000);
-
-
-
-const fora =
-jogo.awayTeam?.shortName ||
-jogo.awayTeam?.name ||
-"Fora";
-
-
-const escudoCasa =
-jogo.homeTeam?.crest ||
-"https://via.placeholder.com/40";
-
-
-const escudoFora =
-jogo.awayTeam?.crest ||
-"https://via.placeholder.com/40";
-
-
-
-const golsCasa =
-jogo.score?.fullTime?.home ??
-jogo.score?.current?.home ??
-0;
-
-
-const golsFora =
-jogo.score?.fullTime?.away ??
-jogo.score?.current?.away ??
-0;
-
-
-
-html += `
-
-<div style="
-background:#1e1e1e;
-margin:10px;
-padding:15px;
-border-radius:10px;
-text-align:center;
-">
-
-<div style="color:#aaa;font-size:12px">
-🏆 ${jogo.competition?.name || ""}
-</div>
-
-
-<div style="
-display:flex;
-justify-content:space-around;
-align-items:center;
-margin-top:15px;
-">
-
-
-<div>
-<img src="${escudoCasa}" width="40">
-<br>
-<b>${casa}</b>
-</div>
-
-
-<div>
-
-<div style="
-font-size:22px;
-font-weight:bold;
-">
-
-${golsCasa} - ${golsFora}
-
-</div>
-
-
-<div style="color:${cor}">
-${status}
-</div>
-
-
-</div>
-
-
-<div>
-<img src="${escudoFora}" width="40">
-<br>
-<b>${fora}</b>
-</div>
-
-
-</div>
-
-</div>
-
-`;
-
-});
-
-
-document.getElementById("jogos").innerHTML=html;
-
-
-}
-
-
-
-// Atualiza automaticamente a cada 30 segundos
-setInterval(carregarJogos,30000);
-
-
-// Carrega ao abrir
-carregarJogos();
-
-
-</script>
-
-</body>
-</html>
