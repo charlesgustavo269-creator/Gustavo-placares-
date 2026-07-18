@@ -8,7 +8,7 @@
 </head>
 <body>
 
-    <!-- TELA INICIAL (Adicionada) -->
+    <!-- TELA INICIAL -->
     <div id="tela-inicial" style="display:flex; flex-direction:column; align-items:center; justify-content:center; height:100vh; background:#121212; color:white; font-family:sans-serif; text-align:center; position:fixed; top:0; width:100%; z-index:999;">
         <span style="font-size:80px; margin-bottom:20px;">⚽</span>
         <h1 style="margin:0; font-size:32px;">Gustavo Placares</h1>
@@ -18,10 +18,8 @@
         </button>
     </div>
 
-    <!-- ÁUDIO (Adicionado) -->
     <audio id="audio-apresentacao" src="apresentacao.mp3"></audio>
 
-    <!-- CONTEÚDO (Envolvi o seu código original nesta div) -->
     <div id="container-conteudo" style="display:none;">
         <header>
             <div class="logo-container">
@@ -39,7 +37,7 @@
         </nav>
 
         <main id="jogos">
-            <div style="text-align:center;color:#888;margin-top:50px;font-size:18px;font-weight:bold;">
+            <div id="status-msg" style="text-align:center;color:#888;margin-top:50px;font-size:18px;font-weight:bold;">
                 Entrando em campo 🏟️ Aguarde...
             </div>
         </main>
