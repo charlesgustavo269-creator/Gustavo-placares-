@@ -2,14 +2,12 @@ const API_KEY = "cb6cfc4960ec49edb8a04af5975ab816";
 let jogos = [];
 let filtro = "ALL";
 
-// Lista de proxies para evitar bloqueios de CORS
 const proxies = [
     (url) => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
     (url) => `https://corsproxy.io/?${encodeURIComponent(url)}`
 ];
 
 async function carregarJogos() {
-    // Truque para quebrar o cache e trazer dados novos
     const quebraCache = Math.random().toString(36).substring(7);
     const urlOriginal = `https://api.football-data.org/v4/matches?nocache=${quebraCache}`;
     let sucesso = false;
@@ -23,9 +21,7 @@ async function carregarJogos() {
                 headers: { 
                     "X-Auth-Token": API_KEY,
                     "Accept": "application/json",
-                    "Cache-Control": "no-cache, no-store, must-revalidate",
-                    "Pragma": "no-cache",
-                    "Expires": "0"
+                    "Cache-Control": "no-cache, no-store, must-revalidate"
                 }
             });
 
@@ -40,25 +36,14 @@ async function carregarJogos() {
                 break;
             }
         } catch (erro) {
-            console.warn(`Proxy ${i + 1} falhou, tentando o próximo...`);
+            console.warn(`Tentativa ${i + 1} falhou...`);
         }
-    }
-
-    // Se falhar tudo, mostra mensagem de erro
-    if (!sucesso && jogos.length === 0 && document.getElementById("jogos")) {
-        document.getElementById("jogos").innerHTML = `
-        <div style="text-align:center;color:#ff4d4d;padding:20px;font-family:sans-serif;">
-            <h2 style="margin-bottom:10px;">Os times estão aquecendo... 🏃‍♂️</h2>
-            <p style="color:#aaa;margin-bottom:20px;">O servidor de dados está um pouco instável.</p>
-        </div>`;
     }
 }
 
 function mostrarJogos() {
     const campoPesquisa = document.getElementById("pesquisa");
-    if (!campoPesquisa) return;
-
-    let pesquisa = campoPesquisa.value.toLowerCase();
+    let pesquisa = campoPesquisa ? campoPesquisa.value.toLowerCase() : "";
     let html = "";
 
     const jogosFiltrados = jogos.filter(j => {
@@ -97,7 +82,6 @@ function mostrarJogos() {
 
         const escudoHome = jogo.homeTeam?.crest || "https://via.placeholder.com/40?text=⚽";
         const escudoAway = jogo.awayTeam?.crest || "https://via.placeholder.com/40?text=⚽";
-        
         const golsHome = jogo.score?.fullTime?.home ?? 0;
         const golsAway = jogo.score?.fullTime?.away ?? 0;
         
@@ -133,18 +117,8 @@ function filtrar(tipo){
     mostrarJogos();
 }
 
-const campoPesquisa = document.getElementById("pesquisa");
-if (campoPesquisa) {
-    campoPesquisa.addEventListener("input", mostrarJogos);
-}
-
-// Inicia o carregamento
+// Inicializa a página buscando os dados da rodada
 carregarJogos();
 
-// Recarrega a página inteira automaticamente a cada 40 segundos
-setTimeout(() => {
-    window.location.reload();
-}, 40000);
-
-            
-
+// Atualiza apenas os placares silenciosamente de 30 em 30 segundos, mantendo a API segura!
+setInterval(carregarJogos, 30000);
