@@ -1,50 +1,9 @@
-const API_KEY = "cb6cfc4960ec49edb8a04af5975ab816";
-let jogos = [];
-let filtro = "ALL";
-
-const proxies = [
-    (url) => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
-    (url) => `https://corsproxy.io/?${encodeURIComponent(url)}`
-];
-
-async function carregarJogos() {
-    const quebraCache = Math.random().toString(36).substring(7);
-    const urlOriginal = `https://api.football-data.org/v4/matches?nocache=${quebraCache}`;
-    let sucesso = false;
-
-    for (let i = 0; i < proxies.length; i++) {
-        try {
-            const urlProxy = proxies[i](urlOriginal);
-            
-            const resposta = await fetch(urlProxy, {
-                method: "GET",
-                headers: { 
-                    "X-Auth-Token": API_KEY,
-                    "Accept": "application/json",
-                    "Cache-Control": "no-cache, no-store, must-revalidate"
-                }
-            });
-
-            if (!resposta.ok) throw new Error(`Status: ${resposta.status}`);
-
-            const dados = await resposta.json();
-            
-            if (dados && dados.matches) {
-                jogos = dados.matches;
-                mostrarJogos();
-                sucesso = true;
-                break;
-            }
-        } catch (erro) {
-            console.warn(`Tentativa ${i + 1} falhou...`);
-        }
-    }
-}
-
 function mostrarJogos() {
     const campoPesquisa = document.getElementById("pesquisa");
     let pesquisa = campoPesquisa ? campoPesquisa.value.toLowerCase() : "";
     let html = "";
+
+    const hoje = new Date().toLocaleDateString("pt-BR").split(' ')[0];
 
     const jogosFiltrados = jogos.filter(j => {
         const statusAoVivo = j.status === "LIVE" || j.status === "IN_PLAY" || j.status === "PAUSED";
@@ -72,9 +31,16 @@ function mostrarJogos() {
             status = "🔴 AO VIVO";
             corStatus = "#ff4d4d"; 
         } else if (jogo.status === "TIMED" || jogo.status === "SCHEDULED") {
-            const data = new Date(jogo.utcDate);
-            const hora = data.toLocaleTimeString("pt-BR",{ hour:"2-digit", minute:"2-digit", timeZone:"America/Sao_Paulo" });
-            status = `📅 Hoje às ${hora}`;
+            const dataJogo = new Date(jogo.utcDate);
+            const dataFormatada = dataJogo.toLocaleDateString("pt-BR").split(' ')[0];
+            const hora = dataJogo.toLocaleTimeString("pt-BR",{ hour:"2-digit", minute:"2-digit", timeZone:"America/Sao_Paulo" });
+            
+            // Lógica nova: se for igual a hoje, mostra "Hoje", senão, mostra a data
+            if (dataFormatada === hoje) {
+                status = `📅 Hoje às ${hora}`;
+            } else {
+                status = `📅 ${dataFormatada} às ${hora}`;
+            }
         } else if (jogo.status === "FINISHED") {
             status = "✔ Encerrado";
             corStatus = "#888";
@@ -111,14 +77,3 @@ function mostrarJogos() {
 
     containerJogos.innerHTML = html;
 }
-
-function filtrar(tipo){
-    filtro = tipo;
-    mostrarJogos();
-}
-
-// Inicializa a página buscando os dados da rodada
-carregarJogos();
-
-// Atualiza apenas os placares silenciosamente de 30 em 30 segundos, mantendo a API segura!
-setInterval(carregarJogos, 30000);
