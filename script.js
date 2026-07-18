@@ -1,48 +1,44 @@
 const API_KEY = "cb6cfc4960ec49edb8a04af5975ab816";
 let jogos = [];
-let filtro = "ALL";
 
-window.onload = function() {
-    if (localStorage.getItem("jaClicou") === "sim") {
-        document.getElementById("tela-inicial").style.display = "none";
-        document.getElementById("container-conteudo").style.display = "block";
-        carregarJogos();
-    }
-};
-
-function iniciarSite() {
-    const audio = document.getElementById("audio-apresentacao");
-    if(audio) audio.play();
-    localStorage.setItem("jaClicou", "sim");
-    document.getElementById("tela-inicial").style.display = "none";
-    document.getElementById("container-conteudo").style.display = "block";
-    carregarJogos();
-}
+// Carrega os jogos assim que o site abre
+window.onload = carregarJogos;
 
 async function carregarJogos() {
-    const url = `https://api.allorigins.win/get?url=${encodeURIComponent('https://api.football-data.org/v4/matches')}`;
-    try {
-        const resposta = await fetch(url, { headers: { "X-Auth-Token": API_KEY } });
-        const data = await resposta.json();
-        const conteudo = JSON.parse(data.contents);
-        if (conteudo.matches) {
-            jogos = conteudo.matches;
-            mostrarJogos();
+    const msg = document.getElementById("status-msg");
+    const proxies = [
+        `https://api.allorigins.win/get?url=${encodeURIComponent('https://api.football-data.org/v4/matches')}`,
+        `https://corsproxy.io/?https://api.football-data.org/v4/matches`
+    ];
+
+    for (let url of proxies) {
+        try {
+            const resposta = await fetch(url, { headers: { "X-Auth-Token": API_KEY } });
+            let data;
+            if (url.includes("allorigins")) {
+                const temp = await resposta.json();
+                data = JSON.parse(temp.contents);
+            } else {
+                data = await resposta.json();
+            }
+
+            if (data.matches) {
+                jogos = data.matches;
+                mostrarJogos();
+                return;
+            }
+        } catch (e) {
+            console.warn("Tentativa falhou, tentando o próximo...");
         }
-    } catch (e) { console.error(e); }
+    }
+    msg.innerHTML = "Erro ao conectar. Tente mais tarde.";
 }
 
 function mostrarJogos() {
-    const pesquisa = document.getElementById("pesquisa").value.toLowerCase();
     const container = document.getElementById("jogos");
-    
-    const filtrados = jogos.filter(j => 
-        j.homeTeam.name.toLowerCase().includes(pesquisa) || 
-        j.awayTeam.name.toLowerCase().includes(pesquisa)
-    );
-
     let html = "";
-    filtrados.forEach(jogo => {
+    
+    jogos.forEach(jogo => {
         html += `
         <div style="background:#1e1e1e;padding:15px;margin:10px;border-radius:8px;color:white;box-shadow:0 4px 6px rgba(0,0,0,0.3);">
             <div style="display:flex;justify-content:space-between;align-items:center;">
@@ -53,17 +49,10 @@ function mostrarJogos() {
         </div>`;
     });
 
-    // A mágica: só atualiza o HTML se algo mudou realmente
     if (container.innerHTML !== html) {
         container.innerHTML = html;
     }
 }
 
-function filtrar(tipo) {
-    filtro = tipo;
-    mostrarJogos();
-}
-
-setInterval(() => {
-    if (localStorage.getItem("jaClicou") === "sim") carregarJogos();
-}, 60000);
+// Atualiza a cada 60 segundos
+setInterval(carregarJogos, 60000);
