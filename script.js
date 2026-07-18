@@ -2,7 +2,6 @@ const API_KEY = "cb6cfc4960ec49edb8a04af5975ab816";
 let jogos = [];
 let filtro = "ALL";
 
-// Verifica ao carregar se já foi clicado
 window.onload = function() {
     if (localStorage.getItem("jaClicou") === "sim") {
         document.getElementById("tela-inicial").style.display = "none";
@@ -21,43 +20,28 @@ function iniciarSite() {
 }
 
 async function carregarJogos() {
-    const msg = document.getElementById("status-msg");
     const url = `https://api.allorigins.win/get?url=${encodeURIComponent('https://api.football-data.org/v4/matches')}`;
-    
     try {
-        const resposta = await fetch(url, {
-            headers: { "X-Auth-Token": API_KEY }
-        });
+        const resposta = await fetch(url, { headers: { "X-Auth-Token": API_KEY } });
         const data = await resposta.json();
         const conteudo = JSON.parse(data.contents);
-        
         if (conteudo.matches) {
             jogos = conteudo.matches;
             mostrarJogos();
-        } else {
-            msg.innerHTML = "Nenhum jogo encontrado no momento.";
         }
-    } catch (e) {
-        msg.innerHTML = "Erro ao carregar. Tente novamente mais tarde.";
-        console.error(e);
-    }
+    } catch (e) { console.error(e); }
 }
 
 function mostrarJogos() {
     const pesquisa = document.getElementById("pesquisa").value.toLowerCase();
     const container = document.getElementById("jogos");
-    let html = "";
     
     const filtrados = jogos.filter(j => 
         j.homeTeam.name.toLowerCase().includes(pesquisa) || 
         j.awayTeam.name.toLowerCase().includes(pesquisa)
     );
 
-    if (filtrados.length === 0) {
-        container.innerHTML = "<p style='text-align:center; color:white;'>Nenhum jogo encontrado.</p>";
-        return;
-    }
-
+    let html = "";
     filtrados.forEach(jogo => {
         html += `
         <div style="background:#1e1e1e;padding:15px;margin:10px;border-radius:8px;color:white;box-shadow:0 4px 6px rgba(0,0,0,0.3);">
@@ -68,7 +52,11 @@ function mostrarJogos() {
             </div>
         </div>`;
     });
-    container.innerHTML = html;
+
+    // A mágica: só atualiza o HTML se algo mudou realmente
+    if (container.innerHTML !== html) {
+        container.innerHTML = html;
+    }
 }
 
 function filtrar(tipo) {
@@ -78,4 +66,4 @@ function filtrar(tipo) {
 
 setInterval(() => {
     if (localStorage.getItem("jaClicou") === "sim") carregarJogos();
-}, 60000); // Aumentei para 60 segundos para evitar bloqueio da API
+}, 60000);
