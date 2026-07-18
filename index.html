@@ -8,29 +8,43 @@
 </head>
 <body>
 
-    <header>
-        <div class="logo-container">
-            <span class="emoji-logo">⚽</span>
-            <h1>Gustavo Placares</h1>
-        </div>
-        <input type="text" id="pesquisa" placeholder="Pesquisar time...">
-    </header>
+    <!-- TELA INICIAL (Adicionada) -->
+    <div id="tela-inicial" style="display:flex; flex-direction:column; align-items:center; justify-content:center; height:100vh; background:#121212; color:white; font-family:sans-serif; text-align:center; position:fixed; top:0; width:100%; z-index:999;">
+        <span style="font-size:80px; margin-bottom:20px;">⚽</span>
+        <h1 style="margin:0; font-size:32px;">Gustavo Placares</h1>
+        <p style="margin:10px 0 30px 0; color:#ccc;">Acompanhe os jogos em destaque do futebol.</p>
+        <button onclick="iniciarSite()" style="padding:15px 40px; font-size:18px; background:#2ecc71; color:white; border:none; border-radius:8px; cursor:pointer; font-weight:bold;">
+            VER PLACARES
+        </button>
+    </div>
 
-    <nav class="filtros">
-        <button onclick="filtrar('ALL')" class="btn-filtro active">Todos</button>
-        <button onclick="filtrar('LIVE')" class="btn-filtro">🔴 Ao Vivo</button>
-        <button onclick="filtrar('TIMED')" class="btn-filtro">📅 Hoje</button>
-        <button onclick="filtrar('FINISHED')" class="btn-filtro">✔ Finalizados</button>
-    </nav>
+    <!-- ÁUDIO (Adicionado) -->
+    <audio id="audio-apresentacao" src="apresentacao.mp3"></audio>
 
-    <main id="jogos">
-        <div style="text-align:center;color:#888;margin-top:50px;font-size:18px;font-weight:bold;">
-            Entrando em campo 🏟️ Aguarde...
-        </div>
-    </main>
+    <!-- CONTEÚDO (Envolvi o seu código original nesta div) -->
+    <div id="container-conteudo" style="display:none;">
+        <header>
+            <div class="logo-container">
+                <span class="emoji-logo">⚽</span>
+                <h1>Gustavo Placares</h1>
+            </div>
+            <input type="text" id="pesquisa" placeholder="Pesquisar time...">
+        </header>
+
+        <nav class="filtros">
+            <button onclick="filtrar('ALL')" class="btn-filtro active">Todos</button>
+            <button onclick="filtrar('LIVE')" class="btn-filtro">🔴 Ao Vivo</button>
+            <button onclick="filtrar('TIMED')" class="btn-filtro">📅 Hoje</button>
+            <button onclick="filtrar('FINISHED')" class="btn-filtro">✔ Finalizados</button>
+        </nav>
+
+        <main id="jogos">
+            <div style="text-align:center;color:#888;margin-top:50px;font-size:18px;font-weight:bold;">
+                Entrando em campo 🏟️ Aguarde...
+            </div>
+        </main>
+    </div>
 
     <script src="script.js"></script>
-
 </body>
 </html>
-
