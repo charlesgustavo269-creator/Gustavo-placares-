@@ -59,7 +59,7 @@ function mostrarJogos() {
     });
 
     if (jogosFiltrados.length === 0) {
-        document.getElementById("jogos").innerHTML = `<h3 style="text-align: center; color: #888;">Nenhum jogo encontrado</h3>`;
+        document.getElementById("jogos").innerHTML = `<h3 style="text-align: center; color: #888; margin-top:20px;">Nenhum jogo encontrado</h3>`;
         return;
     }
 
@@ -82,24 +82,36 @@ function mostrarJogos() {
 
         const escudoHome = jogo.homeTeam?.crest || "https://via.placeholder.com/40?text=⚽";
         const escudoAway = jogo.awayTeam?.crest || "https://via.placeholder.com/40?text=⚽";
-        const golsHome = jogo.score?.fullTime?.home ?? 0;
-        const golsAway = jogo.score?.fullTime?.away ?? 0;
+        
+        // Pega os gols ou define 0 caso venha nulo
+        const golsHome = (jogo.score?.fullTime?.home !== null && jogo.score?.fullTime?.home !== undefined) ? jogo.score.fullTime.home : 0;
+        const golsAway = (jogo.score?.fullTime?.away !== null && jogo.score?.fullTime?.away !== undefined) ? jogo.score.fullTime.away : 0;
 
         html += `
-        <div class="card" style="background:white; margin:10px; padding:15px; border-radius:10px; text-align:center; box-shadow:0 2px 5px rgba(0,0,0,0.1);">
-            <div style="font-size:12px; color:#555; margin-bottom:10px;">🏟️ ${jogo.competition?.name || "Campeonato"}</div>
+        <div class="card" style="background:white; margin:10px; padding:15px; border-radius:10px; text-align:center; box-shadow:0 2px 5px rgba(0,0,0,0.1); color: #222;">
+            <div style="font-size:12px; color:#555; margin-bottom:10px; font-weight:bold;">🏟️ ${jogo.competition?.name || "Campeonato"}</div>
+            
             <div style="display:flex; justify-content:space-between; align-items:center;">
-                <div style="width:30%">
+                <!-- Time da Casa -->
+                <div style="width:30%; display:flex; flex-direction:column; align-items:center;">
                     <img src="${escudoHome}" width="40" height="40" style="object-fit:contain;">
-                    <div style="font-size:12px; font-weight:bold;">${jogo.homeTeam?.shortName || jogo.homeTeam?.name || "---"}</div>
+                    <div style="font-size:12px; font-weight:bold; margin-top:5px; color:#222;">${jogo.homeTeam?.shortName || jogo.homeTeam?.name || "---"}</div>
                 </div>
-                <div style="width:40%">
-                    <div style="font-size:20px; font-weight:bold;">${golsHome} - ${golsAway}</div>
-                    <div style="font-size:11px; margin-top:5px;">${statusDisplay}</div>
+
+                <!-- Placar e Status -->
+                <div style="width:40%; text-align:center;">
+                    <div style="font-size:24px; font-weight:bold; color:#111; letter-spacing:2px;">
+                        ${golsHome} - ${golsAway}
+                    </div>
+                    <div style="font-size:11px; margin-top:5px;">
+                        ${statusDisplay}
+                    </div>
                 </div>
-                <div style="width:30%">
+
+                <!-- Time de Fora -->
+                <div style="width:30%; display:flex; flex-direction:column; align-items:center;">
                     <img src="${escudoAway}" width="40" height="40" style="object-fit:contain;">
-                    <div style="font-size:12px; font-weight:bold;">${jogo.awayTeam?.shortName || jogo.awayTeam?.name || "---"}</div>
+                    <div style="font-size:12px; font-weight:bold; margin-top:5px; color:#222;">${jogo.awayTeam?.shortName || jogo.awayTeam?.name || "---"}</div>
                 </div>
             </div>
         </div>`;
@@ -113,7 +125,6 @@ function filtrar(tipo) {
     mostrarJogos();
 }
 
-// Vincula o evento do campo de busca
 document.getElementById("pesquisa").addEventListener("input", mostrarJogos);
 
 // Inicia o ciclo de atualização
