@@ -2,6 +2,7 @@ const API_KEY = "cb6cfc4960ec49edb8a04af5975ab816";
 
 let jogos = [];
 let filtro = "ALL";
+let audioAtual = null; // Variável para controlar o áudio que está tocando
 
 // Lista de proxies para contornar o bloqueio do GitHub Pages
 const proxies = [
@@ -66,14 +67,18 @@ function mostrarJogos() {
     jogosFiltrados.forEach(jogo => {
         let statusDisplay = "";
         
-        // Verifica status para exibir 🔴 AO VIVO, Data ou Encerrado
+        // Verifica status para exibir 🔴 AO VIVO, Data exata com AM/PM ou Encerrado
         if (["IN_PLAY", "PAUSED", "LIVE"].includes(jogo.status)) {
             statusDisplay = '<span style="color:red; font-weight:bold;">🔴 AO VIVO</span>';
         } else if (["TIMED", "SCHEDULED"].includes(jogo.status)) {
-            const hora = new Date(jogo.utcDate).toLocaleTimeString("pt-BR", {
-                hour: "2-digit", minute: "2-digit", timeZone: "America/Sao_Paulo"
+            const dataJogo = new Date(jogo.utcDate);
+            const diaMes = dataJogo.toLocaleDateString("pt-BR", {
+                day: "2-digit", month: "2-digit", timeZone: "America/Sao_Paulo"
             });
-            statusDisplay = `📅 Hoje às ${hora}`;
+            const hora = dataJogo.toLocaleTimeString("en-US", {
+                hour: "numeric", minute: "2-digit", hour12: true, timeZone: "America/Sao_Paulo"
+            });
+            statusDisplay = `📅 ${diaMes} às ${hora}`;
         } else if (jogo.status === "FINISHED") {
             statusDisplay = "✔ Encerrado";
         } else {
@@ -118,6 +123,16 @@ function mostrarJogos() {
     });
 
     document.getElementById("jogos").innerHTML = html;
+}
+
+// Função para tocar os áudios gravados sem sobrepor
+function tocarAudio(caminhoArquivo) {
+    if (audioAtual) {
+        audioAtual.pause();
+        audioAtual.currentTime = 0;
+    }
+    audioAtual = new Audio(caminhoArquivo);
+    audioAtual.play().catch(erro => console.log("Erro ao reproduzir áudio:", erro));
 }
 
 function filtrar(tipo) {
