@@ -1,34 +1,108 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gustavo Placares</title>
-    <link rel="stylesheet" href="style.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #121212;
+            color: #fff;
+            margin: 0;
+            padding: 0;
+        }
+        /* Cabeçalho do Site */
+        header {
+            background-color: #2e8b57;
+            padding: 15px;
+            text-align: center;
+        }
+        header h1 {
+            margin: 0;
+            font-size: 22px;
+            color: white;
+        }
+        /* Barra de Pesquisa */
+        .search-container {
+            padding: 10px 15px;
+            background-color: #2e8b57;
+            text-align: center;
+        }
+        #pesquisa {
+            width: 100%;
+            max-width: 400px;
+            padding: 10px;
+            border-radius: 20px;
+            border: none;
+            outline: none;
+            font-size: 14px;
+        }
+        /* Botões de Filtro de Status */
+        .filters {
+            display: flex;
+            justify-content: center;
+            gap: 5px;
+            padding: 10px;
+            background-color: #1a1a1a;
+            overflow-x: auto;
+        }
+        .filters button {
+            background-color: #333;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 15px;
+            font-size: 12px;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+        .filters button:hover {
+            background-color: #2e8b57;
+        }
+    </style>
 </head>
 <body>
 
+    <!-- Cabeçalho -->
     <header>
-        <div class="logo-container">
-            <span class="emoji-logo">⚽</span>
-            <h1>Gustavo Placares</h1>
-        </div>
-        <input type="text" id="pesquisa" placeholder="Pesquisar time...">
+        <h1>⚽ Gustavo Placares</h1>
     </header>
 
-    <nav class="filtros">
-        <button onclick="filtrar('ALL')" class="btn-filtro active">Todos</button>
-        <button onclick="filtrar('LIVE')" class="btn-filtro">🔴 Ao Vivo</button>
-        <button onclick="filtrar('TIMED')" class="btn-filtro">📅 Hoje</button>
-        <button onclick="filtrar('FINISHED')" class="btn-filtro">✔ Finalizados</button>
-    </nav>
+    <!-- Campo de Busca -->
+    <div class="search-container">
+        <input type="text" id="pesquisa" placeholder="Pesquisar time...">
+    </div>
 
-    <main id="jogos">
-        <div style="text-align: center; color: #888; margin-top: 50px; font-size: 18px; font-weight: bold;">
-            Entrando em campo 🏟️ Aguarde...
-        </div>
-    </main>
+    <!-- Filtros de Status dos Jogos -->
+    <div class="filters">
+        <button onclick="filtrar('ALL')">Todos</button>
+        <button onclick="filtrar('LIVE')">🔴 Ao Vivo</button>
+        <button onclick="filtrar('TIMED')">📅 Hoje</button>
+        <button onclick="filtrar('FINISHED')">✔ Finalizados</button>
+    </div>
 
+    <!-- 3 Botões de Áudio (Verdes) -->
+    <div style="display: flex; justify-content: center; gap: 8px; flex-wrap: wrap; padding: 10px; background: #1a1a1a; border-top: 1px solid #333;">
+        <button onclick="tocarAudio('que site é esse _.mp3')" style="background-color: #2e8b57; color: white; border: none; padding: 8px 12px; border-radius: 20px; font-size: 13px; font-weight: bold; cursor: pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.3);">
+            🎙️ Que site é esse?
+        </button>
+        
+        <button onclick="tocarAudio('explicação.mp3')" style="background-color: #2e8b57; color: white; border: none; padding: 8px 12px; border-radius: 20px; font-size: 13px; font-weight: bold; cursor: pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.3);">
+            🎙️ Porque aparece poucos jogos?
+        </button>
+        
+        <button onclick="tocarAudio('como foi feito o site _.mp3')" style="background-color: #2e8b57; color: white; border: none; padding: 8px 12px; border-radius: 20px; font-size: 13px; font-weight: bold; cursor: pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.3);">
+            🎙️ Como foi feito o site?
+        </button>
+    </div>
+
+    <!-- Lista onde os jogos vão aparecer dinamicamente com a mensagem solicitada -->
+    <div id="jogos" style="padding: 10px; text-align: center;">
+        <h3 style="color: #fff; margin-top: 20px;">Entrando em campo 🏟️ Aguarde...</h3>
+    </div>
+
+    <!-- Link para o seu arquivo script.js -->
     <script src="script.js"></script>
 </body>
 </html>
