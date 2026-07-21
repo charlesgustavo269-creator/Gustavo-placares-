@@ -2,9 +2,8 @@ const API_KEY = "cb6cfc4960ec49edb8a04af5975ab816";
 
 let jogos = [];
 let filtro = "ALL";
-let audioAtual = null; // Variável para controlar o áudio que está tocando
+let audioAtual = null;
 
-// Lista de proxies para contornar o bloqueio do GitHub Pages
 const proxies = [
     (url) => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
     (url) => `https://corsproxy.io/?${encodeURIComponent(url)}`
@@ -13,8 +12,6 @@ const proxies = [
 async function carregarJogos() {
     const urlOriginal = "https://api.football-data.org/v4/matches";
     let sucesso = false;
-    
-    // Adiciona um timestamp para forçar a atualização e evitar cache
     const timestamp = new Date().getTime(); 
 
     for (let i = 0; i < proxies.length; i++) {
@@ -52,7 +49,6 @@ function mostrarJogos() {
     const pesquisa = document.getElementById("pesquisa").value.toLowerCase();
     let html = "";
 
-    // Pega a data de hoje no formato YYYY-MM-DD ajustada para o fuso do Brasil
     const hojeStr = new Intl.DateTimeFormat('en-CA', {
         timeZone: 'America/Sao_Paulo',
         year: 'numeric',
@@ -61,25 +57,7 @@ function mostrarJogos() {
     }).format(new Date());
 
     const jogosFiltrados = jogos.filter(j => {
-        let passaFiltroStatus = false;
-
-        if (filtro === "ALL") {
-            passaFiltroStatus = true;
-        } else if (filtro === "LIVE") {
-            passaFiltroStatus = ["IN_PLAY", "PAUSED"].includes(j.status);
-        } else if (filtro === "TODAY" || filtro === "HOJE") {
-            // Compara a data do jogo (utcDate) convertida para o formato YYYY-MM-DD de SP com a data de hoje
-            const dataJogoStr = new Intl.DateTimeFormat('en-CA', {
-                timeZone: 'America/Sao_Paulo',
-                year: 'numeric',
-                month: '2-digit',
-                day: '2-digit'
-            }).format(new Date(j.utcDate));
-            passaFiltroStatus = (dataJogoStr === hojeStr);
-        } else {
-            passaFiltroStatus = (j.status === filtro);
-        }
-
+        const passaFiltroStatus = filtro === "ALL" || (filtro === "LIVE" ? ["IN_PLAY", "PAUSED"].includes(j.status) : j.status === filtro);
         const nomeHome = j.homeTeam?.name?.toLowerCase() || "";
         const nomeAway = j.awayTeam?.name?.toLowerCase() || "";
         return passaFiltroStatus && (nomeHome.includes(pesquisa) || nomeAway.includes(pesquisa));
@@ -93,18 +71,33 @@ function mostrarJogos() {
     jogosFiltrados.forEach(jogo => {
         let statusDisplay = "";
         
-        // Verifica status para exibir 🔴 AO VIVO, Data exata com AM/PM ou Encerrado
         if (["IN_PLAY", "PAUSED", "LIVE"].includes(jogo.status)) {
             statusDisplay = '<span style="color:red; font-weight:bold;">🔴 AO VIVO</span>';
         } else if (["TIMED", "SCHEDULED"].includes(jogo.status)) {
             const dataJogo = new Date(jogo.utcDate);
-            const diaMes = dataJogo.toLocaleDateString("pt-BR", {
-                day: "2-digit", month: "2-digit", timeZone: "America/Sao_Paulo"
-            });
+            
+            // Pega a data do jogo no formato YYYY-MM-DD para comparar com hoje
+            const dataJogoStr = new Intl.DateTimeFormat('en-CA', {
+                timeZone: 'America/Sao_Paulo',
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit'
+            }).format(dataJogo);
+
             const hora = dataJogo.toLocaleTimeString("en-US", {
                 hour: "numeric", minute: "2-digit", hour12: true, timeZone: "America/Sao_Paulo"
             });
-            statusDisplay = `📅 ${diaMes} às ${hora}`;
+
+            // Se for hoje, escreve "Hoje", senão exibe a data normal
+            if (dataJogoStr === hojeStr) {
+                statusDisplay = `📅 Hoje às ${hora}`;
+            } else {
+                const diaMes = dataJogo.toLocaleDateString("pt-BR", {
+                    day: "2-digit", month: "2-digit", timeZone: "America/Sao_Paulo"
+                });
+                statusDisplay = `📅 ${diaMes} às ${hora}`;
+            }
+
         } else if (jogo.status === "FINISHED") {
             statusDisplay = "✔ Encerrado";
         } else {
@@ -114,7 +107,6 @@ function mostrarJogos() {
         const escudoHome = jogo.homeTeam?.crest || "https://via.placeholder.com/40?text=⚽";
         const escudoAway = jogo.awayTeam?.crest || "https://via.placeholder.com/40?text=⚽";
         
-        // Pega os gols ou define 0 caso venha nulo
         const golsHome = (jogo.score?.fullTime?.home !== null && jogo.score?.fullTime?.home !== undefined) ? jogo.score.fullTime.home : 0;
         const golsAway = (jogo.score?.fullTime?.away !== null && jogo.score?.fullTime?.away !== undefined) ? jogo.score.fullTime.away : 0;
 
@@ -151,7 +143,6 @@ function mostrarJogos() {
     document.getElementById("jogos").innerHTML = html;
 }
 
-// Função para tocar os áudios gravados sem sobrepor
 function tocarAudio(caminhoArquivo) {
     if (audioAtual) {
         audioAtual.pause();
@@ -168,6 +159,5 @@ function filtrar(tipo) {
 
 document.getElementById("pesquisa").addEventListener("input", mostrarJogos);
 
-// Inicia o ciclo de atualização
 carregarJogos();
 setInterval(carregarJogos, 60000);
