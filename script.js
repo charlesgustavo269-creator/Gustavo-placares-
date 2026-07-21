@@ -52,8 +52,34 @@ function mostrarJogos() {
     const pesquisa = document.getElementById("pesquisa").value.toLowerCase();
     let html = "";
 
+    // Pega a data de hoje no formato YYYY-MM-DD ajustada para o fuso do Brasil
+    const hojeStr = new Intl.DateTimeFormat('en-CA', {
+        timeZone: 'America/Sao_Paulo',
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit'
+    }).format(new Date());
+
     const jogosFiltrados = jogos.filter(j => {
-        const passaFiltroStatus = filtro === "ALL" || (filtro === "LIVE" ? ["IN_PLAY", "PAUSED"].includes(j.status) : j.status === filtro);
+        let passaFiltroStatus = false;
+
+        if (filtro === "ALL") {
+            passaFiltroStatus = true;
+        } else if (filtro === "LIVE") {
+            passaFiltroStatus = ["IN_PLAY", "PAUSED"].includes(j.status);
+        } else if (filtro === "TODAY" || filtro === "HOJE") {
+            // Compara a data do jogo (utcDate) convertida para o formato YYYY-MM-DD de SP com a data de hoje
+            const dataJogoStr = new Intl.DateTimeFormat('en-CA', {
+                timeZone: 'America/Sao_Paulo',
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit'
+            }).format(new Date(j.utcDate));
+            passaFiltroStatus = (dataJogoStr === hojeStr);
+        } else {
+            passaFiltroStatus = (j.status === filtro);
+        }
+
         const nomeHome = j.homeTeam?.name?.toLowerCase() || "";
         const nomeAway = j.awayTeam?.name?.toLowerCase() || "";
         return passaFiltroStatus && (nomeHome.includes(pesquisa) || nomeAway.includes(pesquisa));
