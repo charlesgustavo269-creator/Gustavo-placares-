@@ -11,78 +11,41 @@ const proxies = [
 ];
 
 async function carregarJogos() {
-    const competicoes = [
-        "SA",   // Serie A Itália
-        "BSA",  // Brasileirão Série A
-        "PL",   // Premier League
-        "PD",   // La Liga
-        "BL1",  // Bundesliga
-        "FL1",  // Ligue 1
-        "CL",   // Champions League
-        "CLI",  // Libertadores
-        "ELC",  // Championship
-        "WC",   // Copa do Mundo
-        "EC",   // Eurocopa
-        "PPL",  // Primeira Liga
-        "DED",  // Eredivisie
-        "EL"    // Europa League
-    ];
+    const urlOriginal = "https://api.football-data.org/v4/matches";
+    let sucesso = false;
+    
+    // Adiciona um timestamp para forçar a atualização e evitar cache
+    const timestamp = new Date().getTime(); 
 
-    jogos = [];
-    const timestamp = Date.now();
+    for (let i = 0; i < proxies.length; i++) {
+        try {
+            const urlProxy = proxies[i](urlOriginal + "?t=" + timestamp);
+            const resposta = await fetch(urlProxy, {
+                headers: { "X-Auth-Token": API_KEY }
+            });
 
-    for (const liga of competicoes) {
-        const urlOriginal = `https://api.football-data.org/v4/competitions/${liga}/matches?t=${timestamp}`;
-        let carregou = false;
+            if (!resposta.ok) throw new Error(`Status: ${resposta.status}`);
 
-        for (let i = 0; i < proxies.length; i++) {
-            try {
-                const resposta = await fetch(
-                    proxies[i](urlOriginal),
-                    {
-                        headers: {
-                            "X-Auth-Token": API_KEY
-                        }
-                    }
-                );
-
-                if (!resposta.ok) continue;
-
-                const dados = await resposta.json();
-
-                if (dados.matches && dados.matches.length > 0) {
-                    jogos.push(...dados.matches);
-                }
-
-                carregou = true;
+            const dados = await resposta.json();
+            if (dados && dados.matches) {
+                jogos = dados.matches;
+                mostrarJogos();
+                console.log("Placar atualizado às: " + new Date().toLocaleTimeString());
+                sucesso = true;
                 break;
-
-            } catch (e) {
-                console.log(`Erro na competição ${liga}`);
             }
-        }
-
-        if (!carregou) {
-            console.log(`${liga} indisponível.`);
+        } catch (erro) {
+            console.warn(`Proxy ${i + 1} falhou.`);
         }
     }
 
-    // Remove duplicados pelo ID do jogo
-    jogos = jogos.filter(
-        (jogo, indice, array) =>
-            indice === array.findIndex(j => j.id === jogo.id)
-    );
-
-    // Ordena do mais próximo para o mais distante
-    jogos.sort((a, b) =>
-        new Date(a.utcDate) - new Date(b.utcDate)
-    );
-
-    mostrarJogos();
-
-    console.log(
-        `Atualizado às ${new Date().toLocaleTimeString()} | ${jogos.length} jogos`
-    );
+    if (!sucesso) {
+        document.getElementById("jogos").innerHTML = `
+            <div style="text-align: center; color: #ff4d4d; padding: 20px;">
+                <h2>Erro ao carregar jogos.</h2>
+                <p>Verifique sua conexão ou tente novamente mais tarde.</p>
+            </div>`;
+    }
 }
 
 function mostrarJogos() {
