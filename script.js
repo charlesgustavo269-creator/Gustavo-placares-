@@ -1,29 +1,42 @@
+const API_KEY = "cb6cfc4960ec49edb8a04af5975ab816";
+
 let jogos = [];
 let filtro = "ALL";
 let audioAtual = null;
 
-// URL do seu Worker seguro na Cloudflare
-const PROXY_URL = "https://curly-mud-ef06.charlesgustavo269.workers.dev";
+const proxies = [
+    (url) => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
+    (url) => `https://corsproxy.io/?${encodeURIComponent(url)}`
+];
 
 async function carregarJogos() {
+    const urlOriginal = "https://api.football-data.org/v4/matches";
+    let sucesso = false;
     const timestamp = new Date().getTime(); 
 
-    try {
-        // Chamada direta para o seu Worker (ele já injeta a chave API_KEY por trás dos panos)
-        const resposta = await fetch(`${PROXY_URL}/v4/matches?t=${timestamp}`);
+    for (let i = 0; i < proxies.length; i++) {
+        try {
+            const urlProxy = proxies[i](urlOriginal + "?t=" + timestamp);
+            const resposta = await fetch(urlProxy, {
+                headers: { "X-Auth-Token": API_KEY }
+            });
 
-        if (!resposta.ok) throw new Error(`Status: ${resposta.status}`);
+            if (!resposta.ok) throw new Error(`Status: ${resposta.status}`);
 
-        const dados = await resposta.json();
-        if (dados && dados.matches) {
-            jogos = dados.matches;
-            mostrarJogos();
-            console.log("Placar atualizado às: " + new Date().toLocaleTimeString());
-        } else {
-            throw new Error("Dados inválidos recebidos");
+            const dados = await resposta.json();
+            if (dados && dados.matches) {
+                jogos = dados.matches;
+                mostrarJogos();
+                console.log("Placar atualizado às: " + new Date().toLocaleTimeString());
+                sucesso = true;
+                break;
+            }
+        } catch (erro) {
+            console.warn(`Proxy ${i + 1} falhou.`);
         }
-    } catch (erro) {
-        console.warn("Erro ao carregar jogos:", erro);
+    }
+
+    if (!sucesso) {
         document.getElementById("jogos").innerHTML = `
             <div style="text-align: center; color: #ff4d4d; padding: 20px;">
                 <h2>Erro ao carregar jogos.</h2>
@@ -63,6 +76,7 @@ function mostrarJogos() {
         } else if (["TIMED", "SCHEDULED"].includes(jogo.status)) {
             const dataJogo = new Date(jogo.utcDate);
             
+            // Pega a data do jogo no formato YYYY-MM-DD para comparar com hoje
             const dataJogoStr = new Intl.DateTimeFormat('en-CA', {
                 timeZone: 'America/Sao_Paulo',
                 year: 'numeric',
@@ -71,14 +85,15 @@ function mostrarJogos() {
             }).format(dataJogo);
 
             const hora = dataJogo.toLocaleTimeString("en-US", {
-                hour: "numeric", minute: "2-digit", hour12: true, timeZone: 'America/Sao_Paulo'
+                hour: "numeric", minute: "2-digit", hour12: true, timeZone: "America/Sao_Paulo"
             });
 
+            // Se for hoje, escreve "Hoje", senão exibe a data normal
             if (dataJogoStr === hojeStr) {
                 statusDisplay = `📅 Hoje às ${hora}`;
             } else {
                 const diaMes = dataJogo.toLocaleDateString("pt-BR", {
-                    day: "2-digit", month: "2-digit", timeZone: 'America/Sao_Paulo'
+                    day: "2-digit", month: "2-digit", timeZone: "America/Sao_Paulo"
                 });
                 statusDisplay = `📅 ${diaMes} às ${hora}`;
             }
