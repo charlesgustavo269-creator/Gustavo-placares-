@@ -2,7 +2,7 @@ let jogos = [];
 let filtro = "ALL";
 let audioAtual = null;
 
-// COLOQUE AQUI O LINK DO SEU WORKER DA CLOUDFLARE:
+// URL do seu Worker da Cloudflare que esconde a chave da API
 const PROXY_URL = "https://twilight-scene-8626.charlesgustavo269.workers.dev";
 
 async function carregarJogos() {
@@ -34,7 +34,6 @@ async function carregarJogos() {
 function mostrarJogos() {
     let html = "";
 
-    // Pega a data de hoje e de amanhã de forma segura para o celular
     const agora = new Date();
     const hojeStr = new Date(agora.getFullYear(), agora.getMonth(), agora.getDate()).getTime();
     
@@ -50,7 +49,6 @@ function mostrarJogos() {
         const éAmanha = (dataJogoStr === amanhaStr);
         const estaAoVivo = ["IN_PLAY", "PAUSED", "LIVE"].includes(j.status);
 
-        // Filtra para aceitar jogos de hoje, amanhã ou ao vivo
         const passaData = éHoje || éAmanha || estaAoVivo;
         const passaFiltroStatus = filtro === "ALL" || (filtro === "LIVE" ? estaAoVivo : j.status === filtro);
         
@@ -76,7 +74,6 @@ function mostrarJogos() {
                 hour: "numeric", minute: "2-digit", hour12: true, timeZone: "America/Sao_Paulo"
             });
 
-            // Mostra se é Hoje ou Amanhã corretamente na tela
             if (dataJogoDia === hojeStr) {
                 statusDisplay = `📅 Hoje às ${hora}`;
             } else if (dataJogoDia === amanhaStr) {
@@ -94,21 +91,21 @@ function mostrarJogos() {
             statusDisplay = jogo.status;
         }
 
-        const escudoHome = jogo.homeTeam?.crest || "https://via.placeholder.com/40?text=⚽";
-        const escudoAway = jogo.awayTeam?.crest || "https://via.placeholder.com/40?text=⚽";
+        const escudoHome = jogo.homeTeam?.crest || "https://via.placeholder.com/60?text=⚽";
+        const escudoAway = jogo.awayTeam?.crest || "https://via.placeholder.com/60?text=⚽";
         
         const golsHome = (jogo.score?.fullTime?.home !== null && jogo.score?.fullTime?.home !== undefined) ? jogo.score.fullTime.home : 0;
         const golsAway = (jogo.score?.fullTime?.away !== null && jogo.score?.fullTime?.away !== undefined) ? jogo.score.fullTime.away : 0;
 
-        // Placar com fundo preto (#1a1a1a) e textos/números em verde (#2e8b57)
+        // Escudos maiores (width="60" height="60")
         html += `
         <div class="card" style="background:#1a1a1a; margin:10px auto; max-width: 500px; padding:15px; border-radius:10px; text-align:center; box-shadow:0 4px 8px rgba(0,0,0,0.4); border: 1px solid #333;">
             <div style="font-size:12px; color:#aaa; margin-bottom:10px; font-weight:bold;">🏟️ ${jogo.competition?.name || "Campeonato"}</div>
             
             <div style="display:flex; justify-content:space-between; align-items:center;">
                 <div style="width:30%; display:flex; flex-direction:column; align-items:center;">
-                    <img src="${escudoHome}" width="40" height="40" style="object-fit:contain;">
-                    <div style="font-size:12px; font-weight:bold; margin-top:5px; color:#2e8b57;">${jogo.homeTeam?.shortName || jogo.homeTeam?.name || "---"}</div>
+                    <img src="${escudoHome}" width="60" height="60" style="object-fit:contain;">
+                    <div style="font-size:12px; font-weight:bold; margin-top:8px; color:#2e8b57;">${jogo.homeTeam?.shortName || jogo.homeTeam?.name || "---"}</div>
                 </div>
 
                 <div style="width:40%; text-align:center;">
@@ -121,8 +118,8 @@ function mostrarJogos() {
                 </div>
 
                 <div style="width:30%; display:flex; flex-direction:column; align-items:center;">
-                    <img src="${escudoAway}" width="40" height="40" style="object-fit:contain;">
-                    <div style="font-size:12px; font-weight:bold; margin-top:5px; color:#2e8b57;">${jogo.awayTeam?.shortName || jogo.awayTeam?.name || "---"}</div>
+                    <img src="${escudoAway}" width="60" height="60" style="object-fit:contain;">
+                    <div style="font-size:12px; font-weight:bold; margin-top:8px; color:#2e8b57;">${jogo.awayTeam?.shortName || jogo.awayTeam?.name || "---"}</div>
                 </div>
             </div>
         </div>`;
