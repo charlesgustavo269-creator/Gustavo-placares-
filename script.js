@@ -2,6 +2,7 @@ let jogos = [];
 let filtro = "ALL";
 let audioAtual = null;
 
+// COLOQUE AQUI O LINK DO SEU WORKER DA CLOUDFLARE:
 const PROXY_URL = "https://twilight-scene-8626.charlesgustavo269.workers.dev";
 
 async function carregarJogos() {
@@ -31,9 +32,9 @@ async function carregarJogos() {
 }
 
 function mostrarJogos() {
-    const pesquisa = document.getElementById("pesquisa").value.toLowerCase();
     let html = "";
 
+    // Pega a data de hoje e de amanhã de forma segura para o celular
     const agora = new Date();
     const hojeStr = new Date(agora.getFullYear(), agora.getMonth(), agora.getDate()).getTime();
     
@@ -49,13 +50,11 @@ function mostrarJogos() {
         const éAmanha = (dataJogoStr === amanhaStr);
         const estaAoVivo = ["IN_PLAY", "PAUSED", "LIVE"].includes(j.status);
 
+        // Filtra para aceitar jogos de hoje, amanhã ou ao vivo
         const passaData = éHoje || éAmanha || estaAoVivo;
-
         const passaFiltroStatus = filtro === "ALL" || (filtro === "LIVE" ? estaAoVivo : j.status === filtro);
-        const nomeHome = j.homeTeam?.name?.toLowerCase() || "";
-        const nomeAway = j.awayTeam?.name?.toLowerCase() || "";
         
-        return passaData && passaFiltroStatus && (nomeHome.includes(pesquisa) || nomeAway.includes(pesquisa));
+        return passaData && passaFiltroStatus;
     });
 
     if (jogosFiltrados.length === 0) {
@@ -68,7 +67,7 @@ function mostrarJogos() {
         const estaAoVivo = ["IN_PLAY", "PAUSED", "LIVE"].includes(jogo.status);
         
         if (estaAoVivo) {
-            statusDisplay = '<span style="color:red; font-weight:bold;">🔴 AO VIVO</span>';
+            statusDisplay = '<span style="color:#ff4d4d; font-weight:bold;">🔴 AO VIVO</span>';
         } else if (["TIMED", "SCHEDULED"].includes(jogo.status)) {
             const dataJogo = new Date(jogo.utcDate);
             const dataJogoDia = new Date(dataJogo.getFullYear(), dataJogo.getMonth(), dataJogo.getDate()).getTime();
@@ -77,6 +76,7 @@ function mostrarJogos() {
                 hour: "numeric", minute: "2-digit", hour12: true, timeZone: "America/Sao_Paulo"
             });
 
+            // Mostra se é Hoje ou Amanhã corretamente na tela
             if (dataJogoDia === hojeStr) {
                 statusDisplay = `📅 Hoje às ${hora}`;
             } else if (dataJogoDia === amanhaStr) {
@@ -100,31 +100,29 @@ function mostrarJogos() {
         const golsHome = (jogo.score?.fullTime?.home !== null && jogo.score?.fullTime?.home !== undefined) ? jogo.score.fullTime.home : 0;
         const golsAway = (jogo.score?.fullTime?.away !== null && jogo.score?.fullTime?.away !== undefined) ? jogo.score.fullTime.away : 0;
 
+        // Placar com fundo preto (#1a1a1a) e textos/números em verde (#2e8b57)
         html += `
-        <div class="card" style="background:white; margin:10px; padding:15px; border-radius:10px; text-align:center; box-shadow:0 2px 5px rgba(0,0,0,0.1); color: #222;">
-            <div style="font-size:12px; color:#555; margin-bottom:10px; font-weight:bold;">🏟️ ${jogo.competition?.name || "Campeonato"}</div>
+        <div class="card" style="background:#1a1a1a; margin:10px auto; max-width: 500px; padding:15px; border-radius:10px; text-align:center; box-shadow:0 4px 8px rgba(0,0,0,0.4); border: 1px solid #333;">
+            <div style="font-size:12px; color:#aaa; margin-bottom:10px; font-weight:bold;">🏟️ ${jogo.competition?.name || "Campeonato"}</div>
             
             <div style="display:flex; justify-content:space-between; align-items:center;">
-                <!-- Time da Casa -->
                 <div style="width:30%; display:flex; flex-direction:column; align-items:center;">
                     <img src="${escudoHome}" width="40" height="40" style="object-fit:contain;">
-                    <div style="font-size:12px; font-weight:bold; margin-top:5px; color:#222;">${jogo.homeTeam?.shortName || jogo.homeTeam?.name || "---"}</div>
+                    <div style="font-size:12px; font-weight:bold; margin-top:5px; color:#2e8b57;">${jogo.homeTeam?.shortName || jogo.homeTeam?.name || "---"}</div>
                 </div>
 
-                <!-- Placar e Status -->
                 <div style="width:40%; text-align:center;">
-                    <div style="font-size:24px; font-weight:bold; color:#111; letter-spacing:2px;">
+                    <div style="font-size:26px; font-weight:bold; color:#2e8b57; letter-spacing:2px;">
                         ${golsHome} - ${golsAway}
                     </div>
-                    <div style="font-size:11px; margin-top:5px;">
+                    <div style="font-size:11px; margin-top:5px; color:#ccc;">
                         ${statusDisplay}
                     </div>
                 </div>
 
-                <!-- Time de Fora -->
                 <div style="width:30%; display:flex; flex-direction:column; align-items:center;">
                     <img src="${escudoAway}" width="40" height="40" style="object-fit:contain;">
-                    <div style="font-size:12px; font-weight:bold; margin-top:5px; color:#222;">${jogo.awayTeam?.shortName || jogo.awayTeam?.name || "---"}</div>
+                    <div style="font-size:12px; font-weight:bold; margin-top:5px; color:#2e8b57;">${jogo.awayTeam?.shortName || jogo.awayTeam?.name || "---"}</div>
                 </div>
             </div>
         </div>`;
@@ -146,8 +144,6 @@ function filtrar(tipo) {
     filtro = tipo;
     mostrarJogos();
 }
-
-document.getElementById("pesquisa").addEventListener("input", mostrarJogos);
 
 carregarJogos();
 setInterval(carregarJogos, 60000);
