@@ -69,6 +69,13 @@
         <h1>⚽ Gustavo Placares</h1>
     </header>
 
+    <!-- Painel Virtual com o letreiro -->
+    <div style="background: #111; color: #ffcc00; padding: 8px; overflow: hidden; font-size: 13px; font-weight: bold; border-bottom: 2px solid #28a745;">
+        <marquee behavior="scroll" direction="left" scrollamount="5">
+            ⚽ Bem-vindo ao Gustavo Placares! Acompanhe os principais jogos em destaque de hoje e amanhã. Dados de futebol fornecidos por football-data.org. ⚽
+        </marquee>
+    </div>
+
     <!-- Campo de Busca -->
     <div class="search-container">
         <input type="text" id="pesquisa" placeholder="Pesquisar time...">
@@ -82,22 +89,22 @@
         <button onclick="filtrar('FINISHED')">✔ Finalizados</button>
     </div>
 
-    <!-- 3 Botões de Áudio (Verdes) -->
-    <div style="display: flex; justify-content: center; gap: 8px; flex-wrap: wrap; padding: 10px; background: #1a1a1a; border-top: 1px solid #333;">
-        <button onclick="tocarAudio('que site é esse _.mp3')" style="background-color: #2e8b57; color: white; border: none; padding: 8px 12px; border-radius: 20px; font-size: 13px; font-weight: bold; cursor: pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.3);">
+    <!-- 3 Botões de Áudio em Linha Horizontal -->
+    <div style="display: flex; justify-content: flex-start; gap: 5px; padding: 10px; background: #1a1a1a; border-top: 1px solid #333; overflow-x: auto; white-space: nowrap;">
+        <button onclick="tocarAudio('que site é esse _.mp3')" style="background-color: #2e8b57; color: white; border: none; padding: 8px 12px; border-radius: 15px; font-size: 12px; font-weight: bold; cursor: pointer; flex-shrink: 0;">
             🗣 Que site é esse?
         </button>
         
-        <button onclick="tocarAudio('explicação.mp3')" style="background-color: #2e8b57; color: white; border: none; padding: 8px 12px; border-radius: 20px; font-size: 13px; font-weight: bold; cursor: pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.3);">
+        <button onclick="tocarAudio('explicação.mp3')" style="background-color: #2e8b57; color: white; border: none; padding: 8px 12px; border-radius: 15px; font-size: 12px; font-weight: bold; cursor: pointer; flex-shrink: 0;">
             🗣 Porque aparece poucos jogos?
         </button>
         
-        <button onclick="tocarAudio('como foi feito o site _.mp3')" style="background-color: #2e8b57; color: white; border: none; padding: 8px 12px; border-radius: 20px; font-size: 13px; font-weight: bold; cursor: pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.3);">
+        <button onclick="tocarAudio('como foi feito o site _.mp3')" style="background-color: #2e8b57; color: white; border: none; padding: 8px 12px; border-radius: 15px; font-size: 12px; font-weight: bold; cursor: pointer; flex-shrink: 0;">
             🗣 Como foi feito o site?
         </button>
     </div>
 
-    <!-- Lista onde os jogos vão aparecer dinamicamente com a mensagem solicitada -->
+    <!-- Lista onde os jogos vão aparecer dinamicamente -->
     <div id="jogos" style="padding: 10px; text-align: center;">
         <h3 style="color: #fff; margin-top: 20px;">Entrando em campo 🏟️ Aguarde...</h3>
     </div>
