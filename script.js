@@ -1,42 +1,27 @@
-const API_KEY = "cb6cfc4960ec49edb8a04af5975ab816";
-
 let jogos = [];
 let filtro = "ALL";
 let audioAtual = null;
 
-const proxies = [
-    (url) => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
-    (url) => `https://corsproxy.io/?${encodeURIComponent(url)}`
-];
+const PROXY_URL = "https://curly-mud-ef06.charlesgustavo269.workers.dev";
 
 async function carregarJogos() {
-    const urlOriginal = "https://api.football-data.org/v4/matches";
-    let sucesso = false;
     const timestamp = new Date().getTime(); 
 
-    for (let i = 0; i < proxies.length; i++) {
-        try {
-            const urlProxy = proxies[i](urlOriginal + "?t=" + timestamp);
-            const resposta = await fetch(urlProxy, {
-                headers: { "X-Auth-Token": API_KEY }
-            });
+    try {
+        const resposta = await fetch(`${PROXY_URL}/v4/matches?t=${timestamp}`);
 
-            if (!resposta.ok) throw new Error(`Status: ${resposta.status}`);
+        if (!resposta.ok) throw new Error(`Status: ${resposta.status}`);
 
-            const dados = await resposta.json();
-            if (dados && dados.matches) {
-                jogos = dados.matches;
-                mostrarJogos();
-                console.log("Placar atualizado às: " + new Date().toLocaleTimeString());
-                sucesso = true;
-                break;
-            }
-        } catch (erro) {
-            console.warn(`Proxy ${i + 1} falhou.`);
+        const dados = await resposta.json();
+        if (dados && dados.matches) {
+            jogos = dados.matches;
+            mostrarJogos();
+            console.log("Placar atualizado às: " + new Date().toLocaleTimeString());
+        } else {
+            throw new Error("Dados inválidos recebidos");
         }
-    }
-
-    if (!sucesso) {
+    } catch (erro) {
+        console.warn("Erro ao carregar jogos:", erro);
         document.getElementById("jogos").innerHTML = `
             <div style="text-align: center; color: #ff4d4d; padding: 20px;">
                 <h2>Erro ao carregar jogos.</h2>
@@ -49,51 +34,64 @@ function mostrarJogos() {
     const pesquisa = document.getElementById("pesquisa").value.toLowerCase();
     let html = "";
 
-    const hojeStr = new Intl.DateTimeFormat('en-CA', {
+    // Pega a data de hoje e a data de amanhã no fuso do Brasil
+    const hoje = new Date();
+    const amanha = new Date();
+    amanha.setDate(hoje.getDate() + 1);
+
+    const formatadorData = new Intl.DateTimeFormat('en-CA', {
         timeZone: 'America/Sao_Paulo',
         year: 'numeric',
         month: '2-digit',
         day: '2-digit'
-    }).format(new Date());
+    });
+
+    const hojeStr = formatadorData.format(hoje);
+    const amanhaStr = formatadorData.format(amanha);
 
     const jogosFiltrados = jogos.filter(j => {
-        const passaFiltroStatus = filtro === "ALL" || (filtro === "LIVE" ? ["IN_PLAY", "PAUSED"].includes(j.status) : j.status === filtro);
+        const dataJogoStr = formatadorData.format(new Date(j.utcDate));
+
+        // Permite jogos de HOJE ou de AMANHÃ
+        const éHojeOuAmanha = (dataJogoStr === hojeStr || dataJogoStr === amanhaStr);
+        const estaAoVivo = ["IN_PLAY", "PAUSED", "LIVE"].includes(j.status);
+
+        const passaData = éHojeOuAmanha || estaAoVivo;
+
+        const passaFiltroStatus = filtro === "ALL" || (filtro === "LIVE" ? estaAoVivo : j.status === filtro);
         const nomeHome = j.homeTeam?.name?.toLowerCase() || "";
         const nomeAway = j.awayTeam?.name?.toLowerCase() || "";
-        return passaFiltroStatus && (nomeHome.includes(pesquisa) || nomeAway.includes(pesquisa));
+        
+        return passaData && passaFiltroStatus && (nomeHome.includes(pesquisa) || nomeAway.includes(pesquisa));
     });
 
     if (jogosFiltrados.length === 0) {
-        document.getElementById("jogos").innerHTML = `<h3 style="text-align: center; color: #888; margin-top:20px;">Nenhum jogo encontrado</h3>`;
+        document.getElementById("jogos").innerHTML = `<h3 style="text-align: center; color: #888; margin-top:20px;">Nenhum jogo encontrado para hoje ou amanhã</h3>`;
         return;
     }
 
     jogosFiltrados.forEach(jogo => {
         let statusDisplay = "";
+        const estaAoVivo = ["IN_PLAY", "PAUSED", "LIVE"].includes(jogo.status);
         
-        if (["IN_PLAY", "PAUSED", "LIVE"].includes(jogo.status)) {
+        if (estaAoVivo) {
             statusDisplay = '<span style="color:red; font-weight:bold;">🔴 AO VIVO</span>';
         } else if (["TIMED", "SCHEDULED"].includes(jogo.status)) {
             const dataJogo = new Date(jogo.utcDate);
+            const dataJogoStr = formatadorData.format(dataJogo);
             
-            // Pega a data do jogo no formato YYYY-MM-DD para comparar com hoje
-            const dataJogoStr = new Intl.DateTimeFormat('en-CA', {
-                timeZone: 'America/Sao_Paulo',
-                year: 'numeric',
-                month: '2-digit',
-                day: '2-digit'
-            }).format(dataJogo);
-
             const hora = dataJogo.toLocaleTimeString("en-US", {
-                hour: "numeric", minute: "2-digit", hour12: true, timeZone: "America/Sao_Paulo"
+                hour: "numeric", minute: "2-digit", hour12: true, timeZone: 'America/Sao_Paulo'
             });
 
-            // Se for hoje, escreve "Hoje", senão exibe a data normal
+            // Mostra se é Hoje ou Amanhã junto com a hora
             if (dataJogoStr === hojeStr) {
                 statusDisplay = `📅 Hoje às ${hora}`;
+            } else if (dataJogoStr === amanhaStr) {
+                statusDisplay = `📅 Amanhã às ${hora}`;
             } else {
                 const diaMes = dataJogo.toLocaleDateString("pt-BR", {
-                    day: "2-digit", month: "2-digit", timeZone: "America/Sao_Paulo"
+                    day: "2-digit", month: "2-digit", timeZone: 'America/Sao_Paulo'
                 });
                 statusDisplay = `📅 ${diaMes} às ${hora}`;
             }
