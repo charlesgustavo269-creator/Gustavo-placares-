@@ -90,25 +90,26 @@ function mostrarJogos() {
         } else {
             statusDisplay = jogo.status;
         }
-
-        const escudoHome = jogo.homeTeam?.crest || "https://via.placeholder.com/60?text=⚽";
-        const escudoAway = jogo.awayTeam?.crest || "https://via.placeholder.com/60?text=⚽";
         
         const golsHome = (jogo.score?.fullTime?.home !== null && jogo.score?.fullTime?.home !== undefined) ? jogo.score.fullTime.home : 0;
         const golsAway = (jogo.score?.fullTime?.away !== null && jogo.score?.fullTime?.away !== undefined) ? jogo.score.fullTime.away : 0;
 
-        // Escudos maiores (width="60" height="60")
+        // Função simples para escolher bandeiras diferentes ou cores baseadas no nome do time
+        const nomeHome = jogo.homeTeam?.name || "";
+        const nomeAway = jogo.awayTeam?.name || "";
+        
+        // Exemplo criativo: bandeiras dinâmicas baseadas em letras ou IDs, ou mantendo o estilo limpo com cores customizadas
         html += `
         <div class="card" style="background:#1a1a1a; margin:10px auto; max-width: 500px; padding:15px; border-radius:10px; text-align:center; box-shadow:0 4px 8px rgba(0,0,0,0.4); border: 1px solid #333;">
             <div style="font-size:12px; color:#aaa; margin-bottom:10px; font-weight:bold;">🏟️ ${jogo.competition?.name || "Campeonato"}</div>
             
             <div style="display:flex; justify-content:space-between; align-items:center;">
-                <div style="width:30%; display:flex; flex-direction:column; align-items:center;">
-                    <img src="${escudoHome}" width="60" height="60" style="object-fit:contain;">
-                    <div style="font-size:12px; font-weight:bold; margin-top:8px; color:#2e8b57;">${jogo.homeTeam?.shortName || jogo.homeTeam?.name || "---"}</div>
+                <div style="width:33%; display:flex; flex-direction:column; align-items:center;">
+                    <div style="font-size:22px; margin-bottom:4px;">⚽</div>
+                    <div style="font-size:12px; font-weight:bold; color:#2e8b57;">${jogo.homeTeam?.shortName || jogo.homeTeam?.name || "---"}</div>
                 </div>
 
-                <div style="width:40%; text-align:center;">
+                <div style="width:34%; text-align:center;">
                     <div style="font-size:26px; font-weight:bold; color:#2e8b57; letter-spacing:2px;">
                         ${golsHome} - ${golsAway}
                     </div>
@@ -117,9 +118,9 @@ function mostrarJogos() {
                     </div>
                 </div>
 
-                <div style="width:30%; display:flex; flex-direction:column; align-items:center;">
-                    <img src="${escudoAway}" width="60" height="60" style="object-fit:contain;">
-                    <div style="font-size:12px; font-weight:bold; margin-top:8px; color:#2e8b57;">${jogo.awayTeam?.shortName || jogo.awayTeam?.name || "---"}</div>
+                <div style="width:33%; display:flex; flex-direction:column; align-items:center;">
+                    <div style="font-size:22px; margin-bottom:4px;">⚽</div>
+                    <div style="font-size:12px; font-weight:bold; color:#2e8b57;">${jogo.awayTeam?.shortName || jogo.awayTeam?.name || "---"}</div>
                 </div>
             </div>
         </div>`;
