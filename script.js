@@ -1,42 +1,27 @@
-const API_KEY = "cb6cfc4960ec49edb8a04af5975ab816";
-
 let jogos = [];
 let filtro = "ALL";
 let audioAtual = null;
 
-const proxies = [
-    (url) => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
-    (url) => `https://corsproxy.io/?${encodeURIComponent(url)}`
-];
+const PROXY_URL = "https://twilight-scene-8626.charlesgustavo269.workers.dev";
 
 async function carregarJogos() {
-    const urlOriginal = "https://api.football-data.org/v4/matches";
-    let sucesso = false;
     const timestamp = new Date().getTime(); 
 
-    for (let i = 0; i < proxies.length; i++) {
-        try {
-            const urlProxy = proxies[i](urlOriginal + "?t=" + timestamp);
-            const resposta = await fetch(urlProxy, {
-                headers: { "X-Auth-Token": API_KEY }
-            });
+    try {
+        const resposta = await fetch(`${PROXY_URL}?t=${timestamp}`);
 
-            if (!resposta.ok) throw new Error(`Status: ${resposta.status}`);
+        if (!resposta.ok) throw new Error(`Status: ${resposta.status}`);
 
-            const dados = await resposta.json();
-            if (dados && dados.matches) {
-                jogos = dados.matches;
-                mostrarJogos();
-                console.log("Placar atualizado às: " + new Date().toLocaleTimeString());
-                sucesso = true;
-                break;
-            }
-        } catch (erro) {
-            console.warn(`Proxy ${i + 1} falhou.`);
+        const dados = await resposta.json();
+        if (dados && dados.matches) {
+            jogos = dados.matches;
+            mostrarJogos();
+            console.log("Placar atualizado às: " + new Date().toLocaleTimeString());
+        } else {
+            throw new Error("Dados inválidos recebidos");
         }
-    }
-
-    if (!sucesso) {
+    } catch (erro) {
+        console.warn("Erro ao carregar jogos:", erro);
         document.getElementById("jogos").innerHTML = `
             <div style="text-align: center; color: #ff4d4d; padding: 20px;">
                 <h2>Erro ao carregar jogos.</h2>
@@ -49,7 +34,6 @@ function mostrarJogos() {
     const pesquisa = document.getElementById("pesquisa").value.toLowerCase();
     let html = "";
 
-    // Pega a data de hoje e de amanhã de forma segura para o celular
     const agora = new Date();
     const hojeStr = new Date(agora.getFullYear(), agora.getMonth(), agora.getDate()).getTime();
     
@@ -65,7 +49,6 @@ function mostrarJogos() {
         const éAmanha = (dataJogoStr === amanhaStr);
         const estaAoVivo = ["IN_PLAY", "PAUSED", "LIVE"].includes(j.status);
 
-        // Filtra para aceitar jogos de hoje, amanhã ou ao vivo
         const passaData = éHoje || éAmanha || estaAoVivo;
 
         const passaFiltroStatus = filtro === "ALL" || (filtro === "LIVE" ? estaAoVivo : j.status === filtro);
@@ -94,7 +77,6 @@ function mostrarJogos() {
                 hour: "numeric", minute: "2-digit", hour12: true, timeZone: "America/Sao_Paulo"
             });
 
-            // Mostra se é Hoje ou Amanhã corretamente na tela
             if (dataJogoDia === hojeStr) {
                 statusDisplay = `📅 Hoje às ${hora}`;
             } else if (dataJogoDia === amanhaStr) {
