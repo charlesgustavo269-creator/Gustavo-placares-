@@ -23,26 +23,22 @@
             font-size: 22px;
             color: white;
         }
-        /* Barra de Pesquisa */
-        .search-container {
-            padding: 10px 15px;
-            background-color: #2e8b57;
-            text-align: center;
-        }
-        #pesquisa {
-            width: 100%;
-            max-width: 400px;
-            padding: 10px;
-            border-radius: 20px;
-            border: none;
-            outline: none;
-            font-size: 14px;
+        /* Painel Letreiro Estilo Estádio */
+        .marquee-container {
+            background-color: #111;
+            color: #ffcc00;
+            padding: 10px 0;
+            font-size: 13px;
+            font-weight: bold;
+            border-bottom: 2px solid #2e8b57;
+            overflow: hidden;
+            white-space: nowrap;
         }
         /* Botões de Filtro de Status */
         .filters {
             display: flex;
             justify-content: center;
-            gap: 5px;
+            gap: 6px;
             padding: 10px;
             background-color: #1a1a1a;
             overflow-x: auto;
@@ -60,28 +56,42 @@
         .filters button:hover {
             background-color: #2e8b57;
         }
+        /* Botões de Áudio Horizontais */
+        .audio-buttons {
+            display: flex;
+            justify-content: flex-start;
+            gap: 6px;
+            padding: 10px;
+            background-color: #1a1a1a;
+            border-top: 1px solid #333;
+            overflow-x: auto;
+            white-space: nowrap;
+        }
+        .audio-buttons button {
+            background-color: #2e8b57;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 15px;
+            font-size: 12px;
+            font-weight: bold;
+            cursor: pointer;
+            flex-shrink: 0;
+        }
     </style>
 </head>
 <body>
 
-    <!-- Cabeçalho -->
     <header>
         <h1>⚽ Gustavo Placares</h1>
     </header>
 
-    <!-- Painel Virtual com o letreiro -->
-    <div style="background: #111; color: #ffcc00; padding: 8px; overflow: hidden; font-size: 13px; font-weight: bold; border-bottom: 2px solid #28a745;">
+    <div class="marquee-container">
         <marquee behavior="scroll" direction="left" scrollamount="5">
             ⚽ Bem-vindo ao Gustavo Placares! Acompanhe os principais jogos em destaque de hoje e amanhã. Dados de futebol fornecidos por football-data.org. ⚽
         </marquee>
     </div>
 
-    <!-- Campo de Busca -->
-    <div class="search-container">
-        <input type="text" id="pesquisa" placeholder="Pesquisar time...">
-    </div>
-
-    <!-- Filtros de Status dos Jogos -->
     <div class="filters">
         <button onclick="filtrar('ALL')">Todos</button>
         <button onclick="filtrar('LIVE')">🔴 Ao Vivo</button>
@@ -89,27 +99,22 @@
         <button onclick="filtrar('FINISHED')">✔ Finalizados</button>
     </div>
 
-    <!-- 3 Botões de Áudio em Linha Horizontal -->
-    <div style="display: flex; justify-content: flex-start; gap: 5px; padding: 10px; background: #1a1a1a; border-top: 1px solid #333; overflow-x: auto; white-space: nowrap;">
-        <button onclick="tocarAudio('que site é esse _.mp3')" style="background-color: #2e8b57; color: white; border: none; padding: 8px 12px; border-radius: 15px; font-size: 12px; font-weight: bold; cursor: pointer; flex-shrink: 0;">
+    <div class="audio-buttons">
+        <button onclick="tocarAudio('que site é esse _.mp3')">
             🗣 Que site é esse?
         </button>
-        
-        <button onclick="tocarAudio('explicação.mp3')" style="background-color: #2e8b57; color: white; border: none; padding: 8px 12px; border-radius: 15px; font-size: 12px; font-weight: bold; cursor: pointer; flex-shrink: 0;">
+        <button onclick="tocarAudio('explicação.mp3')">
             🗣 Porque aparece poucos jogos?
         </button>
-        
-        <button onclick="tocarAudio('como foi feito o site _.mp3')" style="background-color: #2e8b57; color: white; border: none; padding: 8px 12px; border-radius: 15px; font-size: 12px; font-weight: bold; cursor: pointer; flex-shrink: 0;">
+        <button onclick="tocarAudio('como foi feito o site _.mp3')">
             🗣 Como foi feito o site?
         </button>
     </div>
 
-    <!-- Lista onde os jogos vão aparecer dinamicamente -->
     <div id="jogos" style="padding: 10px; text-align: center;">
         <h3 style="color: #fff; margin-top: 20px;">Entrando em campo 🏟️ Aguarde...</h3>
     </div>
 
-    <!-- Link para o seu arquivo script.js -->
     <script src="script.js"></script>
 </body>
 </html>
