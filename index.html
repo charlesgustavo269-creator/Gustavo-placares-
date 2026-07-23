@@ -34,29 +34,7 @@
             overflow: hidden;
             white-space: nowrap;
         }
-        /* Botões de Filtro de Status */
-        .filters {
-            display: flex;
-            justify-content: center;
-            gap: 6px;
-            padding: 10px;
-            background-color: #1a1a1a;
-            overflow-x: auto;
-        }
-        .filters button {
-            background-color: #333;
-            color: white;
-            border: none;
-            padding: 8px 12px;
-            border-radius: 15px;
-            font-size: 12px;
-            cursor: pointer;
-            white-space: nowrap;
-        }
-        .filters button:hover {
-            background-color: #2e8b57;
-        }
-        /* Botões de Áudio Horizontais (Logo abaixo dos filtros) */
+        /* Botões de Áudio Horizontais (No topo) */
         .audio-buttons {
             display: flex;
             justify-content: flex-start;
@@ -88,15 +66,8 @@
 
     <div class="marquee-container">
         <marquee behavior="scroll" direction="left" scrollamount="5">
-            ⚽ Bem-vindo ao Gustavo Placares! Acompanhe os principais jogos em destaque de hoje e amanhã. ⚽
+            ⚽ Bem-vindo ao Gustavo Placares! Acompanhe os principais jogos em destaque de hoje e amanhã. Dados de futebol fornecidos pela API do Football-Data.org ⚽
         </marquee>
-    </div>
-
-    <div class="filters">
-        <button onclick="filtrar('ALL')">Todos</button>
-        <button onclick="filtrar('LIVE')">🔴 Ao Vivo</button>
-        <button onclick="filtrar('TIMED')">📅 Hoje</button>
-        <button onclick="filtrar('FINISHED')">✔ Finalizados</button>
     </div>
 
     <div class="audio-buttons">
