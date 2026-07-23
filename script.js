@@ -1,5 +1,4 @@
 let jogos = [];
-let filtro = "ALL";
 let audioAtual = null;
 
 // URL do seu Worker da Cloudflare que esconde a chave da API
@@ -16,6 +15,10 @@ async function carregarJogos() {
         const dados = await resposta.json();
         if (dados && dados.matches) {
             jogos = dados.matches;
+            
+            // Ordenação fixa baseada no ID do jogo para a lista não saltar na tela
+            jogos.sort((a, b) => a.id - b.id);
+            
             mostrarJogos();
             console.log("Placar atualizado às: " + new Date().toLocaleTimeString());
         } else {
@@ -34,25 +37,26 @@ async function carregarJogos() {
 function mostrarJogos() {
     let html = "";
 
-    const hojeStr = new Date().toLocaleDateString("en-US", { timeZone: "America/Sao_Paulo" });
+    const agora = new Date();
+    const options = { timeZone: "America/Sao_Paulo", year: 'numeric', month: '2-digit', day: '2-digit' };
     
-    const amanhaObj = new Date();
-    amanhaObj.setDate(amanhaObj.getDate() + 1);
-    const amanhaStr = amanhaObj.toLocaleDateString("en-US", { timeZone: "America/Sao_Paulo" });
+    const hojeStr = agora.toLocaleDateString("pt-BR", options).split('/').reverse().join('-');
+    
+    const amanhaObj = new Date(agora);
+    amanhaObj.setDate(agora.getDate() + 1);
+    const amanhaStr = amanhaObj.toLocaleDateString("pt-BR", options).split('/').reverse().join('-');
 
+    // Filtra apenas o essencial: jogos de hoje, de amanhã, ou que estejam ao vivo / finalizados recentemente
     const jogosFiltrados = jogos.filter(j => {
         const dataJogoObj = new Date(j.utcDate);
-        const dataJogoStr = dataJogoObj.toLocaleDateString("en-US", { timeZone: "America/Sao_Paulo" });
+        const dataJogoStr = dataJogoObj.toLocaleDateString("pt-BR", options).split('/').reverse().join('-');
 
         const éHoje = (dataJogoStr === hojeStr);
         const éAmanha = (dataJogoStr === amanhaStr);
         const estaAoVivo = ["IN_PLAY", "PAUSED", "LIVE"].includes(j.status);
+        const estaFinalizado = (j.status === "FINISHED");
 
-        // Garante que jogos ao vivo continuem aparecendo mesmo na reta final
-        const passaData = (filtro === "FINISHED" && j.status === "FINISHED") || éHoje || éAmanha || estaAoVivo;
-        const passaFiltroStatus = filtro === "ALL" || (filtro === "LIVE" ? estaAoVivo : j.status === filtro);
-        
-        return passaData && passaFiltroStatus;
+        return éHoje || éAmanha || estaAoVivo || estaFinalizado;
     });
 
     if (jogosFiltrados.length === 0) {
@@ -69,11 +73,11 @@ function mostrarJogos() {
         } else if (["TIMED", "SCHEDULED"].includes(jogo.status)) {
             const dataJogo = new Date(jogo.utcDate);
             
-            const hora = dataJogo.toLocaleTimeString("en-US", {
-                hour: "numeric", minute: "2-digit", hour12: true, timeZone: "America/Sao_Paulo"
+            const hora = dataJogo.toLocaleTimeString("pt-BR", {
+                hour: "2-digit", minute: "2-digit", hour12: false, timeZone: "America/Sao_Paulo"
             });
 
-            const dataJogoStr = dataJogo.toLocaleDateString("en-US", { timeZone: "America/Sao_Paulo" });
+            const dataJogoStr = dataJogo.toLocaleDateString("pt-BR", options).split('/').reverse().join('-');
 
             if (dataJogoStr === hojeStr) {
                 statusDisplay = `📅 Hoje às ${hora}`;
@@ -141,11 +145,6 @@ function tocarAudio(caminhoArquivo) {
     }
     audioAtual = new Audio(caminhoArquivo);
     audioAtual.play().catch(erro => console.log("Erro ao reproduzir áudio:", erro));
-}
-
-function filtrar(tipo) {
-    filtro = tipo;
-    mostrarJogos();
 }
 
 carregarJogos();
