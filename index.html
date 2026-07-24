@@ -1,75 +1,3 @@
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gustavo Placares</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #121212;
-            color: #fff;
-            margin: 0;
-            padding: 0;
-        }
-        /* Cabeçalho do Site */
-        header {
-            background-color: #2e8b57;
-            padding: 15px;
-            text-align: center;
-        }
-        header h1 {
-            margin: 0;
-            font-size: 22px;
-            color: white;
-        }
-        /* Painel Letreiro Estilo Estádio */
-        .marquee-container {
-            background-color: #111;
-            color: #ffcc00;
-            padding: 10px 0;
-            font-size: 13px;
-            font-weight: bold;
-            border-bottom: 2px solid #2e8b57;
-            overflow: hidden;
-            white-space: nowrap;
-        }
-        /* Botões de Áudio Horizontais (No topo) */
-        .audio-buttons {
-            display: flex;
-            justify-content: flex-start;
-            gap: 6px;
-            padding: 10px;
-            background-color: #1a1a1a;
-            border-bottom: 1px solid #333;
-            overflow-x: auto;
-            white-space: nowrap;
-        }
-        .audio-buttons button {
-            background-color: #2e8b57;
-            color: white;
-            border: none;
-            padding: 8px 12px;
-            border-radius: 15px;
-            font-size: 12px;
-            font-weight: bold;
-            cursor: pointer;
-            flex-shrink: 0;
-        }
-    </style>
-</head>
-<body>
-
-    <header>
-        <h1>⚽ Gustavo Placares</h1>
-    </header>
-
-    <div class="marquee-container">
-        <marquee behavior="scroll" direction="left" scrollamount="5">
-            ⚽ Bem-vindo ao Gustavo Placares! Acompanhe os principais jogos em destaque de hoje e amanhã. Dados de futebol fornecidos pela API do Football-Data.org ⚽
-        </marquee>
-    </div>
-
     <div class="audio-buttons">
         <button onclick="tocarAudio('que site é esse _.mp3')">
             🗣 Que site é esse?
@@ -82,19 +10,20 @@
         </button>
     </div>
 
+    <!-- AQUI ENTRA O ANÚNCIO DA ADSTERRA -->
+    <div style="text-align: center; margin: 15px 0;">
+        <script>
+          atOptions = {
+            'key' : '9aa9ff0419db7e9123b604693eb33051',
+            'format' : 'iframe',
+            'height' : 250,
+            'width' : 300,
+            'params' : {}
+          };
+        </script>
+        <script src="https://www.highperformanceformat.com/9aa9ff0419db7e9123b604693eb33051/invoke.js"></script>
+    </div>
+
     <div id="jogos" style="padding: 10px; text-align: center;">
         <h3 style="color: #fff; margin-top: 20px;">Entrando em campo 🏟️ Aguarde...</h3>
     </div>
-
-    <footer style="text-align: center; padding: 25px 10px; color: #888; font-size: 12px; background-color: #121212; border-top: 1px solid #222; margin-top: 30px;">
-        <p style="margin: 0;">
-            Football data provided by the 
-            <a href="https://www.football-data.org/" target="_blank" style="color: #2e8b57; text-decoration: none; font-weight: bold;">
-                Football-Data.org API
-            </a>
-        </p>
-    </footer>
-
-    <script src="script.js"></script>
-</body>
-</html>
