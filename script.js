@@ -36,7 +36,8 @@ async function carregarJogos() {
 
 function criarBlocoAnuncio() {
     const containerAnuncio = document.createElement("div");
-    containerAnuncio.style.cssText = "text-align: center; margin: 15px auto; max-width: 300px; height: 250px; overflow: hidden; display: flex; justify-content: center; align-items: center;";
+    // Começa oculto ou com tamanho flexível para não mostrar vão preto se falhar
+    containerAnuncio.style.cssText = "text-align: center; margin: 15px auto; max-width: 300px; min-height: 250px; overflow: hidden; display: flex; justify-content: center; align-items: center;";
 
     const scriptOptions = document.createElement("script");
     scriptOptions.innerHTML = `
@@ -53,10 +54,19 @@ function criarBlocoAnuncio() {
     scriptInvoke.src = "https://www.highperformanceformat.com/9aa9ff0419db7e9123b604693eb33051/invoke.js";
     scriptInvoke.async = true;
 
-    // Se falhar ao carregar, esconde o espaço para evitar buracos pretos
+    // Monitora se o anúncio carregou ou falhou. Se falhar, some com a caixa na hora!
     scriptInvoke.onerror = function() {
         containerAnuncio.style.display = "none";
     };
+
+    // Verificação de segurança caso o iframe demore ou venha vazio
+    setTimeout(() => {
+        const iframe = containerAnuncio.querySelector("iframe");
+        if (!iframe || iframe.offsetHeight === 0) {
+            // Se o iframe não renderizou conteúdo, esconde o bloco para não virar vão preto
+            containerAnuncio.style.display = "none";
+        }
+    }, 4000);
 
     containerAnuncio.appendChild(scriptOptions);
     containerAnuncio.appendChild(scriptInvoke);
@@ -93,9 +103,6 @@ function mostrarJogos() {
         containerJogos.innerHTML = `<h3 style="text-align: center; color: #888; margin-top:20px;">Nenhum jogo encontrado para hoje ou amanhã</h3>`;
         return;
     }
-
-    // Coloca um anúncio logo no início, antes de desenhar os jogos
-    containerJogos.appendChild(criarBlocoAnuncio());
 
     jogosFiltrados.forEach((jogo, index) => {
         let statusDisplay = "";
@@ -169,9 +176,10 @@ function mostrarJogos() {
             </div>
         `;
 
+        // Adiciona o card do jogo
         containerJogos.appendChild(cardJogo);
 
-        // Insere um anúncio entre os placares seguintes, se houver mais jogos
+        // Insere o anúncio estritamente entre os placares
         if (index < jogosFiltrados.length - 1) {
             containerJogos.appendChild(criarBlocoAnuncio());
         }
