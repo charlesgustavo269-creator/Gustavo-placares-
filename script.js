@@ -36,10 +36,8 @@ async function carregarJogos() {
 
 function criarBlocoAnuncio() {
     const containerAnuncio = document.createElement("div");
-    // Centralizado e contido para não esticar a tela do celular
     containerAnuncio.style.cssText = "text-align: center; margin: 15px auto; max-width: 300px; height: 250px; overflow: hidden; display: flex; justify-content: center; align-items: center;";
 
-    // Configurações do anúncio Adsterra
     const scriptOptions = document.createElement("script");
     scriptOptions.innerHTML = `
       atOptions = {
@@ -51,10 +49,14 @@ function criarBlocoAnuncio() {
       };
     `;
 
-    // Script de invocação da Adsterra
     const scriptInvoke = document.createElement("script");
     scriptInvoke.src = "https://www.highperformanceformat.com/9aa9ff0419db7e9123b604693eb33051/invoke.js";
     scriptInvoke.async = true;
+
+    // Se falhar ao carregar, esconde o espaço para evitar buracos pretos
+    scriptInvoke.onerror = function() {
+        containerAnuncio.style.display = "none";
+    };
 
     containerAnuncio.appendChild(scriptOptions);
     containerAnuncio.appendChild(scriptInvoke);
@@ -75,7 +77,6 @@ function mostrarJogos() {
     amanhaObj.setDate(agora.getDate() + 1);
     const amanhaStr = amanhaObj.toLocaleDateString("pt-BR", options).split('/').reverse().join('-');
 
-    // Filtra apenas o essencial: jogos de hoje, de amanhã, ou que estejam ao vivo / finalizados recentemente
     const jogosFiltrados = jogos.filter(j => {
         const dataJogoObj = new Date(j.utcDate);
         const dataJogoStr = dataJogoObj.toLocaleDateString("pt-BR", options).split('/').reverse().join('-');
@@ -92,6 +93,9 @@ function mostrarJogos() {
         containerJogos.innerHTML = `<h3 style="text-align: center; color: #888; margin-top:20px;">Nenhum jogo encontrado para hoje ou amanhã</h3>`;
         return;
     }
+
+    // Coloca um anúncio logo no início, antes de desenhar os jogos
+    containerJogos.appendChild(criarBlocoAnuncio());
 
     jogosFiltrados.forEach((jogo, index) => {
         let statusDisplay = "";
@@ -136,7 +140,6 @@ function mostrarJogos() {
             ? `<img src="${jogo.awayTeam.crest}" alt="${jogo.awayTeam.name}" style="width:32px; height:32px; object-fit:contain; margin-bottom:4px;">` 
             : '⚽';
 
-        // Cria o elemento do card do jogo
         const cardJogo = document.createElement("div");
         cardJogo.className = "card";
         cardJogo.style.cssText = "background:#1a1a1a; margin:10px auto; max-width: 500px; padding:15px; border-radius:10px; text-align:center; box-shadow:0 4px 8px rgba(0,0,0,0.4); border: 1px solid #333;";
@@ -166,10 +169,9 @@ function mostrarJogos() {
             </div>
         `;
 
-        // Adiciona o card do jogo na página
         containerJogos.appendChild(cardJogo);
 
-        // Insere o anúncio SOMENTE entre os placares (não coloca no final)
+        // Insere um anúncio entre os placares seguintes, se houver mais jogos
         if (index < jogosFiltrados.length - 1) {
             containerJogos.appendChild(criarBlocoAnuncio());
         }
