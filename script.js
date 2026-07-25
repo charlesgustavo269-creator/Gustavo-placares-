@@ -34,8 +34,36 @@ async function carregarJogos() {
     }
 }
 
+function criarBlocoAnuncio() {
+    const containerAnuncio = document.createElement("div");
+    containerAnuncio.style.cssText = "text-align: center; margin: 15px auto; max-width: 300px;";
+
+    // Configurações do anúncio Adsterra
+    const scriptOptions = document.createElement("script");
+    scriptOptions.innerHTML = `
+      atOptions = {
+        'key' : '9aa9ff0419db7e9123b604693eb33051',
+        'format' : 'iframe',
+        'height' : 250,
+        'width' : 300,
+        'params' : {}
+      };
+    `;
+
+    // Script de invocação da Adsterra
+    const scriptInvoke = document.createElement("script");
+    scriptInvoke.src = "https://www.highperformanceformat.com/9aa9ff0419db7e9123b604693eb33051/invoke.js";
+    scriptInvoke.async = true;
+
+    containerAnuncio.appendChild(scriptOptions);
+    containerAnuncio.appendChild(scriptInvoke);
+
+    return containerAnuncio;
+}
+
 function mostrarJogos() {
-    let html = "";
+    const containerJogos = document.getElementById("jogos");
+    containerJogos.innerHTML = ""; // Limpa a área antes de desenhar
 
     const agora = new Date();
     const options = { timeZone: "America/Sao_Paulo", year: 'numeric', month: '2-digit', day: '2-digit' };
@@ -60,11 +88,11 @@ function mostrarJogos() {
     });
 
     if (jogosFiltrados.length === 0) {
-        document.getElementById("jogos").innerHTML = `<h3 style="text-align: center; color: #888; margin-top:20px;">Nenhum jogo encontrado para hoje ou amanhã</h3>`;
+        containerJogos.innerHTML = `<h3 style="text-align: center; color: #888; margin-top:20px;">Nenhum jogo encontrado para hoje ou amanhã</h3>`;
         return;
     }
 
-    jogosFiltrados.forEach(jogo => {
+    jogosFiltrados.forEach((jogo, index) => {
         let statusDisplay = "";
         const estaAoVivo = ["IN_PLAY", "PAUSED", "LIVE"].includes(jogo.status);
         
@@ -99,7 +127,6 @@ function mostrarJogos() {
         const golsHome = (jogo.score?.fullTime?.home !== null && jogo.score?.fullTime?.home !== undefined) ? jogo.score.fullTime.home : 0;
         const golsAway = (jogo.score?.fullTime?.away !== null && jogo.score?.fullTime?.away !== undefined) ? jogo.score.fullTime.away : 0;
 
-        // Escudos oficiais dos times (com fallback para a bola caso a API não envie o link)
         const escudoHome = jogo.homeTeam?.crest 
             ? `<img src="${jogo.homeTeam.crest}" alt="${jogo.homeTeam.name}" style="width:32px; height:32px; object-fit:contain; margin-bottom:4px;">` 
             : '⚽';
@@ -108,8 +135,12 @@ function mostrarJogos() {
             ? `<img src="${jogo.awayTeam.crest}" alt="${jogo.awayTeam.name}" style="width:32px; height:32px; object-fit:contain; margin-bottom:4px;">` 
             : '⚽';
 
-        html += `
-        <div class="card" style="background:#1a1a1a; margin:10px auto; max-width: 500px; padding:15px; border-radius:10px; text-align:center; box-shadow:0 4px 8px rgba(0,0,0,0.4); border: 1px solid #333;">
+        // Cria o elemento do card do jogo
+        const cardJogo = document.createElement("div");
+        cardJogo.className = "card";
+        cardJogo.style.cssText = "background:#1a1a1a; margin:10px auto; max-width: 500px; padding:15px; border-radius:10px; text-align:center; box-shadow:0 4px 8px rgba(0,0,0,0.4); border: 1px solid #333;";
+        
+        cardJogo.innerHTML = `
             <div style="font-size:12px; color:#aaa; margin-bottom:10px; font-weight:bold;">🏟️ ${jogo.competition?.name || "Campeonato"}</div>
             
             <div style="display:flex; justify-content:space-between; align-items:center;">
@@ -132,10 +163,15 @@ function mostrarJogos() {
                     <div style="font-size:17px; font-weight:bold; color:#2e8b57; text-align:center;">${jogo.awayTeam?.shortName || jogo.awayTeam?.name || "---"}</div>
                 </div>
             </div>
-        </div>`;
-    });
+        `;
 
-    document.getElementById("jogos").innerHTML = html;
+        // Adiciona o card do jogo na página
+        containerJogos.appendChild(cardJogo);
+
+        // Insere um anúncio APÓS cada jogo (exceto se for o último da lista, se preferir)
+        // Se quiser exibir anúncio entre CADA jogo, basta descomentar a linha abaixo:
+        containerJogos.appendChild(criarBlocoAnuncio());
+    });
 }
 
 function tocarAudio(caminhoArquivo) {
