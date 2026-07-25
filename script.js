@@ -36,7 +36,8 @@ async function carregarJogos() {
 
 function criarBlocoAnuncio() {
     const containerAnuncio = document.createElement("div");
-    containerAnuncio.style.cssText = "text-align: center; margin: 15px auto; max-width: 300px;";
+    // Centralizado e contido para não esticar a tela do celular
+    containerAnuncio.style.cssText = "text-align: center; margin: 15px auto; max-width: 300px; height: 250px; overflow: hidden; display: flex; justify-content: center; align-items: center;";
 
     // Configurações do anúncio Adsterra
     const scriptOptions = document.createElement("script");
@@ -168,8 +169,7 @@ function mostrarJogos() {
         // Adiciona o card do jogo na página
         containerJogos.appendChild(cardJogo);
 
-        // Insere um anúncio APÓS cada jogo (exceto se for o último da lista, se preferir)
-        // Se quiser exibir anúncio entre CADA jogo, basta descomentar a linha abaixo:
+        // Insere um anúncio após cada placar
         containerJogos.appendChild(criarBlocoAnuncio());
     });
 }
