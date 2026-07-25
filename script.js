@@ -36,7 +36,6 @@ async function carregarJogos() {
 
 function criarBlocoAnuncio() {
     const containerAnuncio = document.createElement("div");
-    // Começa oculto ou com tamanho flexível para não mostrar vão preto se falhar
     containerAnuncio.style.cssText = "text-align: center; margin: 15px auto; max-width: 300px; min-height: 250px; overflow: hidden; display: flex; justify-content: center; align-items: center;";
 
     const scriptOptions = document.createElement("script");
@@ -54,16 +53,15 @@ function criarBlocoAnuncio() {
     scriptInvoke.src = "https://www.highperformanceformat.com/9aa9ff0419db7e9123b604693eb33051/invoke.js";
     scriptInvoke.async = true;
 
-    // Monitora se o anúncio carregou ou falhou. Se falhar, some com a caixa na hora!
+    // Se falhar ao carregar, esconde o espaço para evitar buracos pretos
     scriptInvoke.onerror = function() {
         containerAnuncio.style.display = "none";
     };
 
-    // Verificação de segurança caso o iframe demore ou venha vazio
+    // Verificação de segurança caso o banner venha vazio
     setTimeout(() => {
         const iframe = containerAnuncio.querySelector("iframe");
         if (!iframe || iframe.offsetHeight === 0) {
-            // Se o iframe não renderizou conteúdo, esconde o bloco para não virar vão preto
             containerAnuncio.style.display = "none";
         }
     }, 4000);
@@ -179,7 +177,7 @@ function mostrarJogos() {
         // Adiciona o card do jogo
         containerJogos.appendChild(cardJogo);
 
-        // Insere o anúncio estritamente entre os placares
+        // Insere o anúncio SOMENTE entre os placares (e nunca após o último)
         if (index < jogosFiltrados.length - 1) {
             containerJogos.appendChild(criarBlocoAnuncio());
         }
