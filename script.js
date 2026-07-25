@@ -169,8 +169,10 @@ function mostrarJogos() {
         // Adiciona o card do jogo na página
         containerJogos.appendChild(cardJogo);
 
-        // Insere um anúncio após cada placar
-        containerJogos.appendChild(criarBlocoAnuncio());
+        // Insere o anúncio SOMENTE entre os placares (não coloca no final)
+        if (index < jogosFiltrados.length - 1) {
+            containerJogos.appendChild(criarBlocoAnuncio());
+        }
     });
 }
 
