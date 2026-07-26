@@ -53,12 +53,10 @@ function criarBlocoAnuncio() {
     scriptInvoke.src = "https://www.highperformanceformat.com/9aa9ff0419db7e9123b604693eb33051/invoke.js";
     scriptInvoke.async = true;
 
-    // Se falhar ao carregar, esconde o espaço para evitar buracos pretos
     scriptInvoke.onerror = function() {
         containerAnuncio.style.display = "none";
     };
 
-    // Verificação de segurança caso o banner venha vazio
     setTimeout(() => {
         const iframe = containerAnuncio.querySelector("iframe");
         if (!iframe || iframe.offsetHeight === 0) {
@@ -74,7 +72,7 @@ function criarBlocoAnuncio() {
 
 function mostrarJogos() {
     const containerJogos = document.getElementById("jogos");
-    containerJogos.innerHTML = ""; // Limpa a área antes de desenhar
+    containerJogos.innerHTML = ""; 
 
     const agora = new Date();
     const options = { timeZone: "America/Sao_Paulo", year: 'numeric', month: '2-digit', day: '2-digit' };
@@ -174,10 +172,8 @@ function mostrarJogos() {
             </div>
         `;
 
-        // Adiciona o card do jogo
         containerJogos.appendChild(cardJogo);
 
-        // Insere o anúncio SOMENTE entre os placares (e nunca após o último)
         if (index < jogosFiltrados.length - 1) {
             containerJogos.appendChild(criarBlocoAnuncio());
         }
