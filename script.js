@@ -36,7 +36,7 @@ async function carregarJogos() {
 
 function criarBlocoAnuncio() {
     const containerAnuncio = document.createElement("div");
-    containerAnuncio.style.cssText = "text-align: center; margin: 15px auto; max-width: 300px; min-height: 250px; overflow: hidden; display: flex; justify-content: center; align-items: center;";
+    containerAnuncio.style.cssText = "text-align: center; margin: 30px auto 10px auto; max-width: 300px; min-height: 250px; overflow: hidden; display: flex; justify-content: center; align-items: center; background: #111; border-radius: 10px; border: 1px dashed #333; padding: 10px;";
 
     const scriptOptions = document.createElement("script");
     scriptOptions.innerHTML = `
@@ -100,7 +100,7 @@ function mostrarJogos() {
         return;
     }
 
-    jogosFiltrados.forEach((jogo, index) => {
+    jogosFiltrados.forEach((jogo) => {
         let statusDisplay = "";
         const estaAoVivo = ["IN_PLAY", "PAUSED", "LIVE"].includes(jogo.status);
         
@@ -173,11 +173,10 @@ function mostrarJogos() {
         `;
 
         containerJogos.appendChild(cardJogo);
-
-        if (index < jogosFiltrados.length - 1) {
-            containerJogos.appendChild(criarBlocoAnuncio());
-        }
     });
+
+    // Coloca APENAS UM anúncio bem no final da lista de jogos
+    containerJogos.appendChild(criarBlocoAnuncio());
 }
 
 function tocarAudio(caminhoArquivo) {
