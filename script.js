@@ -128,6 +128,8 @@ function mostrarJogos() {
 
         } else if (jogo.status === "FINISHED") {
             statusDisplay = "✔ Encerrado";
+        } else if (jogo.status === "POSTPONED") {
+            statusDisplay = "⏳ Adiado";
         } else {
             statusDisplay = jogo.status;
         }
