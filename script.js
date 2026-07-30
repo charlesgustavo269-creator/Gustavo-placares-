@@ -34,42 +34,6 @@ async function carregarJogos() {
     }
 }
 
-function criarBlocoAnuncio() {
-    const containerAnuncio = document.createElement("div");
-    containerAnuncio.style.cssText = "text-align: center; margin: 30px auto 10px auto; max-width: 300px; min-height: 250px; overflow: hidden; display: flex; justify-content: center; align-items: center; background: #111; border-radius: 10px; border: 1px dashed #333; padding: 10px;";
-
-    const scriptOptions = document.createElement("script");
-    scriptOptions.innerHTML = `
-      atOptions = {
-        'key' : '9aa9ff0419db7e9123b604693eb33051',
-        'format' : 'iframe',
-        'height' : 250,
-        'width' : 300,
-        'params' : {}
-      };
-    `;
-
-    const scriptInvoke = document.createElement("script");
-    scriptInvoke.src = "https://www.highperformanceformat.com/9aa9ff0419db7e9123b604693eb33051/invoke.js";
-    scriptInvoke.async = true;
-
-    scriptInvoke.onerror = function() {
-        containerAnuncio.style.display = "none";
-    };
-
-    setTimeout(() => {
-        const iframe = containerAnuncio.querySelector("iframe");
-        if (!iframe || iframe.offsetHeight === 0) {
-            containerAnuncio.style.display = "none";
-        }
-    }, 4000);
-
-    containerAnuncio.appendChild(scriptOptions);
-    containerAnuncio.appendChild(scriptInvoke);
-
-    return containerAnuncio;
-}
-
 function mostrarJogos() {
     const containerJogos = document.getElementById("jogos");
     containerJogos.innerHTML = ""; 
@@ -176,9 +140,6 @@ function mostrarJogos() {
 
         containerJogos.appendChild(cardJogo);
     });
-
-    // Coloca APENAS UM anúncio bem no final da lista de jogos
-    containerJogos.appendChild(criarBlocoAnuncio());
 }
 
 function tocarAudio(caminhoArquivo) {
